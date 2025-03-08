@@ -157,7 +157,9 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
       )}
-      <div className="container mx-auto px-4 py-6">{children}</div>
+      <div className={isAuthenticated ? "container mx-auto px-4 py-6" : ""}>
+        {children}
+      </div>
     </>
   );
 }
