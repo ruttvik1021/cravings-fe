@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 90% 2.5%; /* Darker for better contrast */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 356 78% 50%; /* Slightly darker red */
+    --primary-foreground: 0 0% 100%; /* White for strong contrast */
+
+    --secondary: 154 75% 90%; /* Slightly darker Honeydew */
+    --secondary-foreground: 222.2 90% 10%; /* Improved contrast */
+
+    --muted: 186 50% 70%; /* Darker Non-Photo Blue */
+    --muted-foreground: 215.4 20% 30%; /* More contrast */
+
+    --accent: 203 50% 40%; /* Darker Cerulean */
+    --accent-foreground: 210 100% 95%; /* Lightened for contrast */
+
+    --destructive: 0 80% 45%; /* Darker red */
+    --destructive-foreground: 0 0% 100%; /* White for contrast */
+
+    --border: 214.3 25% 85%; /* Darker border */
+    --input: 214.3 25% 85%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 90% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 80% 6%;
+    --card-foreground: 210 100% 95%;
+
+    --popover: 222.2 84% 6%;
+    --popover-foreground: 210 100% 98%;
+
+    --primary: 356 78% 55%; /* Brighter red */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 154 80% 25%; /* Darker Honeydew */
+    --secondary-foreground: 210 100% 98%;
+
+    --muted: 186 45% 50%;
+    --muted-foreground: 215 20% 70%;
+
+    --accent: 203 55% 35%; /* Darker Cerulean */
+    --accent-foreground: 210 100% 95%;
+
+    --destructive: 0 80% 35%; /* Darker red */
+    --destructive-foreground: 210 100% 98%;
+
+    --border: 217.2 32% 20%;
+    --input: 217.2 32% 20%;
+    --ring: 212.7 40% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom theme classes */
+.bg-red {
+  background-color: hsl(356, 78%, 50%);
+}
+.bg-honeydew {
+  background-color: hsl(154, 75%, 90%);
+}
+.bg-non-photo-blue {
+  background-color: hsl(186, 50%, 70%);
+}
+.bg-cerulean {
+  background-color: hsl(203, 50%, 40%);
+}
+.bg-berkeley-blue {
+  background-color: hsl(222.2, 84%, 10%);
+}
+
+.text-primary {
+  color: hsl(222.2, 90%, 10%);
+}
+.text-honeydew {
+  color: hsl(154, 80%, 25%);
+}
+.text-non-photo-blue {
+  color: hsl(186, 50%, 30%);
+}
+.text-cerulean {
+  color: hsl(203, 55%, 35%);
+}
+.text-berkeley-blue {
+  color: hsl(222.2, 100%, 98%);
+}
+
+.border-red {
+  border-color: hsl(356, 78%, 50%);
+}
+.border-honeydew {
+  border-color: hsl(154, 75%, 90%);
+}
+.border-non-photo-blue {
+  border-color: hsl(186, 50%, 70%);
+}
+.border-cerulean {
+  border-color: hsl(203, 50%, 40%);
+}
+.border-berkeley-blue {
+  border-color: hsl(222.2, 84%, 10%);
+}
+
+/* Make NProgress Bar Thicker */
+#nprogress .bar {
+  height: 5px; /* Change thickness */
+  background: hsl(203, 55%, 45%); /* More visible blue */
+}
