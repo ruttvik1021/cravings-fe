@@ -4,7 +4,7 @@ import type React from "react";
 
 import { Bell, ChevronDown, LogOut, Menu, Settings, User } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -125,6 +125,7 @@ export function DashboardLayout({
   userName,
 }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isAuthenticated, logout } = useAuth();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
@@ -231,10 +232,15 @@ export function DashboardLayout({
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
+              {userType === "restaurant" && (
+                <DropdownMenuItem
+                  className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"
+                  onClick={() => router.replace("/admin/setup")}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator className="bg-honeydew/30" />
               <DropdownMenuItem
                 className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"

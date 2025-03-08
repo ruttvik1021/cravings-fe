@@ -76,7 +76,7 @@
 }
 
 /* Custom theme classes */
-.bg-red {
+.bg-primary {
   background-color: hsl(356, 78%, 50%);
 }
 .bg-honeydew {

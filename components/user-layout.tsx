@@ -95,7 +95,7 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span className="sr-only">Cart</span>
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-honeydew text-xs text-white">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-cerulean text-xs text-white">
                   3
                 </span>
               </Button>
