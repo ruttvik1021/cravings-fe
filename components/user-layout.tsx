@@ -24,10 +24,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/authContext";
 
 export function UserLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const navItems = [
@@ -36,6 +36,8 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
     { title: "Order History", href: "/user/history", icon: History },
     { title: "Profile", href: "/user/profile", icon: User },
   ];
+
+  console.log("isAuthenticated", { isAuthenticated, user });
 
   return (
     <>
@@ -59,7 +61,7 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
                   className="flex items-center gap-2 text-lg font-semibold text-primary"
                   onClick={() => setIsMobileNavOpen(false)}
                 >
-                  <span className="font-bold">FoodDelivery</span>
+                  <span className="font-bold">Cravings</span>
                 </Link>
                 <div className="my-4 border-t border-honeydew/30"></div>
                 {navItems.map((item) => (
@@ -81,7 +83,7 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
             href="/user/home"
             className="flex items-center gap-2 text-lg font-semibold text-primary"
           >
-            <span className="font-bold">FoodDelivery</span>
+            <span className="font-bold">Cravings</span>
           </Link>
 
           <nav className="hidden md:flex gap-6 ml-6">

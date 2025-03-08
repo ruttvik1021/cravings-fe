@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/authContext";
 import { cn } from "@/lib/utils";
 import { Package, Store, Users } from "lucide-react";
 
@@ -164,7 +164,7 @@ export function DashboardLayout({
                 className="flex items-center gap-2 text-lg font-semibold text-primary"
                 onClick={() => setIsMobileNavOpen(false)}
               >
-                <span className="font-bold">FoodDelivery</span>
+                <span className="font-bold">Cravings</span>
               </Link>
               <div className="my-4 border-t border-honeydew/30"></div>
               {navItems[userType].map((item) => {
@@ -201,7 +201,7 @@ export function DashboardLayout({
           href="#"
           className="flex items-center gap-2 text-lg font-semibold text-primary"
         >
-          <span className="font-bold">FoodDelivery</span>
+          <span className="font-bold">Cravings</span>
         </Link>
         <div className="ml-auto flex items-center gap-2">
           <Button
@@ -265,7 +265,7 @@ export function DashboardLayout({
               href="#"
               className="flex items-center gap-2 text-lg font-semibold text-primary"
             >
-              <span className="font-bold">FoodDelivery</span>
+              <span className="font-bold">Cravings</span>
             </Link>
           </div>
           <nav className="grid gap-2 p-4 text-sm">

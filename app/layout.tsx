@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import RouteLoader from "@/components/routeLoader";
+import QueryWrapper from "@/components/queryWrapper";
+import { AuthProvider } from "@/lib/authContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <RouteLoader />
-        {children}
+        <AuthProvider>
+          <RouteLoader />
+          <QueryWrapper>{children}</QueryWrapper>
+        </AuthProvider>
       </body>
     </html>
   );

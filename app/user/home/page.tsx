@@ -90,111 +90,49 @@ export default function HomePage() {
 
       {/* Food Categories */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Explore Categories</h2>
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="mb-4 flex w-full overflow-x-auto pb-2 justify-start">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="fast-food">Fast Food</TabsTrigger>
-            <TabsTrigger value="italian">Italian</TabsTrigger>
-            <TabsTrigger value="indian">Indian</TabsTrigger>
-            <TabsTrigger value="chinese">Chinese</TabsTrigger>
-            <TabsTrigger value="japanese">Japanese</TabsTrigger>
-            <TabsTrigger value="mexican">Mexican</TabsTrigger>
-          </TabsList>
+        <h2 className="text-xl font-semibold mb-4">Explore Restaurants</h2>
 
-          <TabsContent value="all" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {restaurants.map((restaurant) => (
-                <Link
-                  href={`/user/restaurant/${restaurant.id}`}
-                  key={restaurant.id}
-                >
-                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={restaurant.image || "/placeholder.svg"}
-                        alt={restaurant.name}
-                        fill
-                        className="object-cover"
-                      />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {restaurants.map((restaurant) => (
+            <Link
+              href={`/user/restaurant/${restaurant.id}`}
+              key={restaurant.id}
+            >
+              <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={restaurant.image || "/placeholder.svg"}
+                    alt={restaurant.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-lg">
+                        {restaurant.name}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {restaurant.cuisine}
+                      </p>
                     </div>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-lg">
-                            {restaurant.name}
-                          </h3>
-                          <p className="text-muted-foreground text-sm">
-                            {restaurant.cuisine}
-                          </p>
-                        </div>
-                        <div className="flex items-center bg-primary/10 px-2 py-1 rounded">
-                          <Star className="h-4 w-4 text-primary fill-primary mr-1" />
-                          <span className="text-sm font-medium">
-                            {restaurant.rating}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between mt-4 text-sm text-muted-foreground">
-                        <span>{restaurant.deliveryTime}</span>
-                        <span>{restaurant.distance}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Other tabs would have filtered content */}
-          <TabsContent value="fast-food" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {restaurants
-                .filter((r) => r.cuisine === "Fast Food")
-                .map((restaurant) => (
-                  <Link
-                    href={`/user/restaurant/${restaurant.id}`}
-                    key={restaurant.id}
-                  >
-                    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="relative h-48 w-full">
-                        <Image
-                          src={restaurant.image || "/placeholder.svg"}
-                          alt={restaurant.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {restaurant.name}
-                            </h3>
-                            <p className="text-muted-foreground text-sm">
-                              {restaurant.cuisine}
-                            </p>
-                          </div>
-                          <div className="flex items-center bg-primary/10 px-2 py-1 rounded">
-                            <Star className="h-4 w-4 text-primary fill-primary mr-1" />
-                            <span className="text-sm font-medium">
-                              {restaurant.rating}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between mt-4 text-sm text-muted-foreground">
-                          <span>{restaurant.deliveryTime}</span>
-                          <span>{restaurant.distance}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-            </div>
-          </TabsContent>
-
-          {/* Similar structure for other cuisine types */}
-        </Tabs>
+                    <div className="flex items-center bg-primary/10 px-2 py-1 rounded">
+                      <Star className="h-4 w-4 text-primary fill-primary mr-1" />
+                      <span className="text-sm font-medium">
+                        {restaurant.rating}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between mt-4 text-sm text-muted-foreground">
+                    <span>{restaurant.deliveryTime}</span>
+                    <span>{restaurant.distance}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

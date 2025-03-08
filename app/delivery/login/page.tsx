@@ -1,34 +1,41 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
+import { useState } from "react";
+import Link from "next/link";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAuth } from "@/lib/auth"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/lib/authContext";
 
 export default function DeliveryLoginPage() {
-  const { login } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       // In a real app, you would make an API call to verify credentials
       if (email && password) {
         // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Mock user data
         const userData = {
@@ -36,25 +43,27 @@ export default function DeliveryLoginPage() {
           name: "John Delivery",
           email: email,
           role: "delivery" as const,
-        }
+        };
 
-        login(userData)
+        login(userData);
       } else {
-        setError("Please enter both email and password")
+        setError("Please enter both email and password");
       }
     } catch (err) {
-      setError("Invalid email or password")
-      console.error(err)
+      setError("Invalid email or password");
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="mx-auto max-w-md w-full">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Delivery Partner Portal</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            Delivery Partner Portal
+          </CardTitle>
           <CardDescription>Sign in to start delivering orders</CardDescription>
         </CardHeader>
         <CardContent>
@@ -66,7 +75,11 @@ export default function DeliveryLoginPage() {
             <TabsContent value="login">
               <form onSubmit={handleLogin}>
                 <div className="grid gap-4">
-                  {error && <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">{error}</div>}
+                  {error && (
+                    <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">
+                      {error}
+                    </div>
+                  )}
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -81,7 +94,10 @@ export default function DeliveryLoginPage() {
                   <div className="grid gap-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password">Password</Label>
-                      <Link href="#" className="text-sm text-primary underline-offset-4 hover:underline">
+                      <Link
+                        href="#"
+                        className="text-sm text-primary underline-offset-4 hover:underline"
+                      >
                         Forgot password?
                       </Link>
                     </div>
@@ -112,7 +128,12 @@ export default function DeliveryLoginPage() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="m@example.com" required />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      required
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="address">Address</Label>
@@ -141,11 +162,17 @@ export default function DeliveryLoginPage() {
         <CardFooter className="flex flex-col">
           <div className="text-sm text-muted-foreground text-center mt-2">
             By continuing, you agree to our{" "}
-            <Link href="#" className="text-primary underline-offset-4 hover:underline">
+            <Link
+              href="#"
+              className="text-primary underline-offset-4 hover:underline"
+            >
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link href="#" className="text-primary underline-offset-4 hover:underline">
+            <Link
+              href="#"
+              className="text-primary underline-offset-4 hover:underline"
+            >
               Privacy Policy
             </Link>
             .
@@ -153,6 +180,5 @@ export default function DeliveryLoginPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-

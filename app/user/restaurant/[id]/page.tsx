@@ -100,7 +100,7 @@ export default function RestaurantPage({ params }: { params: { id: string } }) {
 
   return (
     <>
-      <div className="relative h-64 md:h-80">
+      <div className="relative h-64 md:h-80 mb-2">
         <Image
           src={restaurant.image || "/placeholder.svg"}
           alt={restaurant.name}

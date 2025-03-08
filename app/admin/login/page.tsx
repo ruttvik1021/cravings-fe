@@ -1,9 +1,6 @@
 "use client";
 
-import type React from "react";
-
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,54 +11,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/authContext";
 import { useRouter } from "next/navigation";
 
+import { userLoginApi } from "@/app/user/apis/auth";
+import TextField from "@/components/textfield";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
 export default function AdminLoginPage() {
-  const { login, isAuthenticated } = useAuth();
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const { mutate: userLogin, isPending: isLoginPending } = useMutation({
+    mutationFn: (data: LoginFormData) => userLoginApi(data),
+    onSuccess: (response) => {
+      login(response.data.accessToken, response.data.user);
+      loginControl._reset();
+    },
+    onError(error) {
+      setError(error.message);
+    },
+  });
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/admin/dashboard");
-    }
-  }, [isAuthenticated]);
+  const {
+    control: loginControl,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      // In a real app, you would make an API call to verify credentials
-      if (email && password) {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // Mock user data
-        const userData = {
-          id: "admin-123",
-          name: "Admin User",
-          email: email,
-          role: "admin" as const,
-        };
-
-        login(userData);
-      } else {
-        setError("Please enter both email and password");
-      }
-    } catch (err) {
-      setError("Invalid email or password");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = async (data: LoginFormData) => {
+    userLogin(data);
   };
 
   return (
@@ -74,44 +64,49 @@ export default function AdminLoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLoginSubmit(handleLogin)} noValidate>
             <div className="grid gap-4">
-              {error && (
-                <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">
-                  {error}
-                </div>
-              )}
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="#"
-                    className="text-sm text-primary underline-offset-4 hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+              <Controller
+                name="email"
+                control={loginControl}
+                render={({ field }) => (
+                  <TextField
+                    type="email"
+                    label="Email"
+                    name="email"
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={loginErrors.email?.message}
+                    placeholder="m@example.com"
+                    required
+                  />
+                )}
+              />
+
+              <Controller
+                name="password"
+                control={loginControl}
+                render={({ field }) => (
+                  <TextField
+                    type="password"
+                    label="Password"
+                    name="password"
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={loginErrors.password?.message}
+                    required
+                  />
+                )}
+              />
+
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoginPending}
+              >
+                {isLoginPending ? "Logging in..." : "Login"}
               </Button>
             </div>
           </form>

@@ -45,48 +45,53 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("jwt")?.value; // Get JWT from cookies
   const requestedPath = request.nextUrl.pathname;
 
-  console.log("token", token);
-
   // Allow access to login pages if no token is present
   if (!token) {
     if (loginRoutes.includes(requestedPath)) {
       return NextResponse.next();
     }
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/", request.url)); // Redirect unauthenticated users to home
   }
 
   try {
     const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-    const userRoles: (keyof typeof roleDashboards)[] = payload.role || []; // Extract user roles (assuming it's an array)
+    const userRole = payload.role as keyof typeof roleDashboards; // Extract user role (string)
 
-    // Redirect base routes to default dashboards
-    const basePath = requestedPath.split("/")[1] as keyof typeof roleDashboards;
-    if (roleDashboards[basePath]) {
+    console.log("payload", { payload, userRole });
+
+    // Redirect base routes to default dashboards only if the user is on a dashboard base route
+    if (
+      requestedPath in roleDashboards &&
+      requestedPath !== roleDashboards[userRole]
+    ) {
       return NextResponse.redirect(
-        new URL(roleDashboards[basePath], request.url)
+        new URL(roleDashboards[userRole], request.url)
       );
     }
 
     // Check if the requested route is allowed for the user's role
-    const hasAccess = userRoles.some((role) =>
-      roleRoutes[role]?.some((route) => requestedPath.startsWith(route))
+    const allowedRoutes = roleRoutes[userRole] || [];
+    const hasAccess = allowedRoutes.some((route) =>
+      requestedPath.startsWith(route)
     );
 
-    if (!hasAccess) {
-      // Redirect to their default dashboard if unauthorized
-      const defaultDashboard = roleDashboards[userRoles[0]] || "/";
-      return NextResponse.redirect(new URL(defaultDashboard, request.url));
+    if (!hasAccess && !loginRoutes.includes(requestedPath)) {
+      // Prevent infinite redirection loops
+      if (requestedPath !== roleDashboards[userRole]) {
+        return NextResponse.redirect(
+          new URL(roleDashboards[userRole], request.url)
+        );
+      }
     }
 
     // Redirect logged-in users from "/login" to their respective dashboard
     if (loginRoutes.includes(requestedPath)) {
       return NextResponse.redirect(
-        new URL(roleDashboards[userRoles[0]], request.url)
+        new URL(roleDashboards[userRole], request.url)
       );
     }
   } catch (error) {
     console.error("Error decoding JWT:", error);
-    // return NextResponse.redirect(new URL("/", request.url));
     return NextResponse.next();
   }
 
