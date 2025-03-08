@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell, LogOut, Menu, ShoppingCart, User } from "lucide-react";
+import {
+  Bell,
+  LogOut,
+  Menu,
+  Package,
+  ShoppingCart,
+  User,
+  History,
+  House,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,10 +31,10 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const navItems = [
-    { title: "Home", href: "/user/home" },
-    { title: "My Orders", href: "/user/orders" },
-    { title: "Order History", href: "/user/history" },
-    { title: "Profile", href: "/user/profile" },
+    { title: "Home", href: "/user/home", icon: House },
+    { title: "My Orders", href: "/user/orders", icon: Package },
+    { title: "Order History", href: "/user/history", icon: History },
+    { title: "Profile", href: "/user/profile", icon: User },
   ];
 
   return (
@@ -60,6 +69,7 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-primary hover:bg-honeydew/20"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
+                    <item.icon className="h-5 w-5" />
                     {item.title}
                   </Link>
                 ))}

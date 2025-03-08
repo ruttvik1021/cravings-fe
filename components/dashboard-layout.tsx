@@ -2,7 +2,19 @@
 
 import type React from "react";
 
-import { Bell, ChevronDown, LogOut, Menu, Settings, User } from "lucide-react";
+import {
+  Bell,
+  Bike,
+  ChevronDown,
+  History,
+  LayoutDashboard,
+  LogOut,
+  Logs,
+  Menu,
+  Settings,
+  SquareMenu,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,18 +30,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import {
-  Check,
-  Package,
-  Search,
-  ShoppingCart,
-  Store,
-  Truck,
-  Users,
-  X,
-} from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
+import { Package, Store, Users } from "lucide-react";
 
 interface NavItem {
   title: string;
@@ -50,7 +53,7 @@ const navItems: Record<userTypes, NavItem[]> = {
     {
       title: "Dashboard",
       href: "/admin/dashboard",
-      icon: Package,
+      icon: LayoutDashboard,
     },
     {
       title: "Restaurants",
@@ -60,7 +63,7 @@ const navItems: Record<userTypes, NavItem[]> = {
     {
       title: "Delivery Agents",
       href: "/admin/delivery-agents",
-      icon: Package,
+      icon: Bike,
     },
     {
       title: "Users",
@@ -77,17 +80,17 @@ const navItems: Record<userTypes, NavItem[]> = {
     {
       title: "Dashboard",
       href: "/restaurant/dashboard",
-      icon: Package,
+      icon: LayoutDashboard,
     },
     {
       title: "Orders",
       href: "/restaurant/orders",
-      icon: Package,
+      icon: Logs,
     },
     {
       title: "Menu",
       href: "/restaurant/menu",
-      icon: Package,
+      icon: SquareMenu,
     },
     {
       title: "Financials",
@@ -99,7 +102,7 @@ const navItems: Record<userTypes, NavItem[]> = {
     {
       title: "Available Orders",
       href: "/delivery/orders",
-      icon: Package,
+      icon: Logs,
     },
     {
       title: "My Deliveries",
@@ -109,12 +112,12 @@ const navItems: Record<userTypes, NavItem[]> = {
     {
       title: "History",
       href: "/delivery/history",
-      icon: Package,
+      icon: History,
     },
     {
       title: "Profile",
       href: "/delivery/profile",
-      icon: Package,
+      icon: User,
     },
   ],
 };
