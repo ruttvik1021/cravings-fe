@@ -16,6 +16,7 @@ const roleRoutes = {
     "/user/history",
     "/user/orders",
     "/user/restaurant",
+    "/user/profile",
   ],
   delivery: ["/delivery/orders"],
   restaurant: [

@@ -1,16 +1,4 @@
-import {
-  useState,
-  useEffect,
-  InputHTMLAttributes,
-  TextareaHTMLAttributes,
-} from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { useEffect, useState } from "react";
 
 type InputType =
   | "text"
@@ -51,8 +39,8 @@ const TextField: React.FC<TextFieldProps> = ({
   maxLength,
   error,
   className,
-  countryCode,
-  onCountryCodeChange,
+  // countryCode,
+  // onCountryCodeChange,
 }) => {
   const [charCount, setCharCount] = useState(value?.length || 0);
 
@@ -95,14 +83,14 @@ const TextField: React.FC<TextFieldProps> = ({
 
     if (type === "tel") {
       return (
-        <div className="flex gap-2">
-          {onCountryCodeChange && (
+        <div className="flex gap-2 w-full max-w-md">
+          {/* {onCountryCodeChange && (
             <Select
               value={countryCode}
               onValueChange={onCountryCodeChange}
               disabled={disabled}
             >
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger>
                 <SelectValue placeholder="Code" />
               </SelectTrigger>
               <SelectContent>
@@ -111,7 +99,7 @@ const TextField: React.FC<TextFieldProps> = ({
                 <SelectItem value="+44">+44 (UK)</SelectItem>
               </SelectContent>
             </Select>
-          )}
+          )} */}
           <input
             type="tel"
             id={name}
@@ -122,9 +110,7 @@ const TextField: React.FC<TextFieldProps> = ({
             disabled={disabled}
             maxLength={maxLength}
             placeholder={placeholder}
-            className={`flex-1 p-2 border rounded-md ${className} ${
-              error ? "border-red-500" : "border-gray-300"
-            }`}
+            className="flex-1 min-w-0 p-2 border rounded-md"
           />
         </div>
       );
