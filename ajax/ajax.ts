@@ -25,7 +25,10 @@ const createController = () => {
 };
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL:
+    process.env.NEXT_PUBLIC_ENV === "development"
+      ? process.env.NEXT_PUBLIC_DEV_URL
+      : process.env.NEXT_PUBLIC_LOCAL_URL,
 });
 
 // Response interceptor
