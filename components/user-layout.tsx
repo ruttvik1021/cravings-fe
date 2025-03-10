@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import {
   Bell,
+  History,
+  House,
   LogOut,
   Menu,
   Package,
   ShoppingCart,
   User,
-  History,
-  House,
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/authContext";
 
 export function UserLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const navItems = [
@@ -36,8 +36,6 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
     { title: "Order History", href: "/user/history", icon: History },
     { title: "Profile", href: "/user/profile", icon: User },
   ];
-
-  console.log("isAuthenticated", { isAuthenticated, user });
 
   return (
     <>

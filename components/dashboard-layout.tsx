@@ -238,7 +238,7 @@ export function DashboardLayout({
               {userType === "restaurant" && (
                 <DropdownMenuItem
                   className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"
-                  onClick={() => router.replace("/admin/setup")}
+                  onClick={() => router.replace("/restaurant/setup")}
                 >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings

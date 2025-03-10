@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export type UserRole = "user" | "restaurant" | "delivery" | "admin";
 
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userData: AuthUser,
     redirectPath?: string
   ) => {
-    setCookie("jwt", accessToken, {
+    setCookie("token", accessToken, {
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

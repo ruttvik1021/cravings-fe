@@ -7,6 +7,11 @@ interface UserRegistration {
   pincode: string;
 }
 
+interface RestaurantAndDeliveryAgentRegistration extends UserRegistration {
+  profilePhoto: File;
+  idCard: File;
+}
+
 interface UserLogin {
   email: string;
   password: string;

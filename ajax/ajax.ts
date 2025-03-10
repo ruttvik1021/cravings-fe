@@ -77,9 +77,17 @@ const getAjax = (url: string, auth: boolean) => {
   });
 };
 
+const patchAjax = (url: string, data: any, auth: boolean) => {
+  return axiosInstance.patch(url, data, {
+    headers: getHeaders(auth),
+    signal: createController(),
+  });
+};
+
 export const AjaxUtils = {
   getAjax,
   deleteAjax,
   putAjax,
   postAjax,
+  patchAjax,
 };

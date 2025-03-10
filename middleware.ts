@@ -18,11 +18,13 @@ const roleRoutes = {
     "/user/restaurant",
     "/user/profile",
   ],
-  delivery: ["/delivery/orders"],
-  restaurant: [
+  delivery_agent: ["/delivery/orders"],
+  restaurant_owner: [
     "/restaurant/dashboard",
+    "/restaurant/orders",
     "/restaurant/menu",
     "/restaurant/setup",
+    "/restaurant/financials",
   ],
 };
 
@@ -30,8 +32,8 @@ const roleRoutes = {
 const roleDashboards = {
   admin: "/admin/dashboard",
   user: "/user/home",
-  delivery: "/delivery/orders",
-  restaurant: "/restaurant/dashboard",
+  delivery_agent: "/delivery/orders",
+  restaurant_owner: "/restaurant/dashboard",
 };
 
 // Define login routes
@@ -43,8 +45,10 @@ const loginRoutes = [
 ];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("jwt")?.value; // Get JWT from cookies
+  const token = request.cookies.get("token")?.value; // Get JWT from cookies
   const requestedPath = request.nextUrl.pathname;
+
+  console.log("token", { token, requestedPath });
 
   // Allow access to login pages if no token is present
   if (!token) {

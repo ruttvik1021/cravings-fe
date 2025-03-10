@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,42 +24,64 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Search, X } from "lucide-react";
+import { useState } from "react";
+import {
+  approveRestaurantOwner,
+  getRestaurantsRequests,
+  rejectRestaurantOwner,
+} from "../apis/restaurants";
+import { ConfirmDialog } from "../components/confirm-dialog";
 
 export default function AdminRestaurantsPage() {
-  // Mock restaurant data
-  const pendingRestaurants = [
-    {
-      id: 1,
-      name: "Pizza Heaven",
-      owner: "Jane Smith",
-      email: "jane@pizzaheaven.com",
-      phone: "+1 555-123-4567",
-      type: "Casual Dining",
-      cuisine: "Italian",
-      registeredDate: "2023-06-15",
+  const queryClient = useQueryClient();
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [restaurantToAction, setRestaurantToAction] = useState<any>(null);
+  const [actionType, setActionType] = useState<
+    "approve" | "reject" | "suspend" | "activate"
+  >("approve");
+
+  const handleConfirmAction = () => {
+    if (actionType === "approve") {
+      approveRestaurant();
+    }
+    if (actionType === "reject") {
+      rejectRestaurant();
+    }
+    // In a real app, this would call an API to perform the action
+    setIsConfirmDialogOpen(false);
+  };
+
+  const { mutate: approveRestaurant, isPending: isApproving } = useMutation({
+    mutationFn: () => approveRestaurantOwner(restaurantToAction?._id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingRestaurants"] });
     },
-    {
-      id: 2,
-      name: "Sushi World",
-      owner: "David Lee",
-      email: "david@sushiworld.com",
-      phone: "+1 555-987-6543",
-      type: "Fine Dining",
-      cuisine: "Japanese",
-      registeredDate: "2023-06-14",
+  });
+
+  const { mutate: rejectRestaurant, isPending: isRejecting } = useMutation({
+    mutationFn: () => rejectRestaurantOwner(restaurantToAction?._id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingRestaurants"] });
     },
-    {
-      id: 3,
-      name: "Taco Fiesta",
-      owner: "Maria Rodriguez",
-      email: "maria@tacofiesta.com",
-      phone: "+1 555-789-0123",
-      type: "Fast Food",
-      cuisine: "Mexican",
-      registeredDate: "2023-06-13",
-    },
-  ];
+  });
+
+  const { data: pendingRestaurants, isLoading: isPendingRequestsLoading } =
+    useQuery({
+      queryKey: ["pendingRestaurants"],
+      queryFn: () => getRestaurantsRequests(),
+    });
+
+  const handleAction = (
+    restaurant: any,
+    type: "approve" | "reject" | "suspend" | "activate"
+  ) => {
+    setRestaurantToAction(restaurant);
+    setActionType(type);
+    setIsConfirmDialogOpen(true);
+  };
 
   const activeRestaurants = [
     {
@@ -256,38 +279,58 @@ export default function AdminRestaurantsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pendingRestaurants.map((restaurant) => (
-                      <TableRow key={restaurant.id}>
-                        <TableCell className="font-medium">
-                          {restaurant.name}
-                        </TableCell>
-                        <TableCell>{restaurant.owner}</TableCell>
-                        <TableCell>
-                          <div>{restaurant.email}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {restaurant.phone}
-                          </div>
-                        </TableCell>
-                        <TableCell>{restaurant.type}</TableCell>
-                        <TableCell>{restaurant.cuisine}</TableCell>
-                        <TableCell>{restaurant.registeredDate}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm">
-                              View
-                            </Button>
-                            <Button variant="default" size="sm">
-                              <Check className="mr-1 h-4 w-4" />
-                              Approve
-                            </Button>
-                            <Button variant="destructive" size="sm">
-                              <X className="mr-1 h-4 w-4" />
-                              Reject
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {isPendingRequestsLoading ? (
+                      <>Loading...</>
+                    ) : pendingRestaurants?.data.length ? (
+                      pendingRestaurants?.data?.map((restaurant: any) => (
+                        <TableRow key={restaurant.id}>
+                          <TableCell className="font-medium">
+                            {restaurant.name}
+                          </TableCell>
+                          <TableCell>{restaurant.owner}</TableCell>
+                          <TableCell>
+                            <div>{restaurant.email}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {restaurant.phone}
+                            </div>
+                          </TableCell>
+                          <TableCell>{restaurant.type}</TableCell>
+                          <TableCell>{restaurant.cuisine}</TableCell>
+                          <TableCell>{restaurant.registeredDate}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" size="sm">
+                                View
+                              </Button>
+
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="bg-honeydew hover:bg-honeydew/80 text-white"
+                                onClick={() =>
+                                  handleAction(restaurant, "approve")
+                                }
+                              >
+                                <Check className="mr-1 h-4 w-4" />
+                                Approve
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() =>
+                                  handleAction(restaurant, "reject")
+                                }
+                              >
+                                <X className="mr-1 h-4 w-4" />
+                                Reject
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <>No pending requests</>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -295,6 +338,15 @@ export default function AdminRestaurantsPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <ConfirmDialog
+        title={`${
+          actionType.charAt(0).toUpperCase() + actionType.slice(1)
+        } Restaurant`}
+        description={`Are you sure you want to ${actionType} ${restaurantToAction?.name}?`}
+        open={isConfirmDialogOpen}
+        onOpenChange={setIsConfirmDialogOpen}
+        onConfirm={handleConfirmAction}
+      />
     </>
   );
 }

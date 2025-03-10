@@ -1,10 +1,7 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { restaurantSignUpApi, userLoginApi } from "@/app/user/apis/auth";
+import TextField from "@/components/textfield";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,13 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/authContext";
-import { useState } from "react";
-import TextField from "@/components/textfield";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { userLoginApi, userSignUpApi } from "@/app/user/apis/auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 // Zod validation schemas
 const loginSchema = z.object({
@@ -56,7 +57,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ [activeTab]: string }>({});
   const [countryCode, setCountryCode] = useState("+91");
   const { mutate: userLogin, isPending: isLoginPending } = useMutation({
     mutationFn: (data: LoginFormData) => userLoginApi(data),
@@ -65,20 +66,23 @@ export default function LoginPage() {
       loginControl._reset();
     },
     onError(error) {
-      setError(error.message);
+      setError({
+        [activeTab]: error.message,
+      });
     },
   });
 
-  const { mutate: userRegistration, isPending: isRegisterPending } =
+  const { mutate: restaurantRegistration, isPending: isRegisterPending } =
     useMutation({
-      mutationFn: (data: RegisterFormData) => userSignUpApi(data),
+      mutationFn: (data: RegisterFormData) => restaurantSignUpApi(data),
       onSuccess: (response) => {
-        console.log("registration response", response);
-        router.push("/user/home");
+        login(response.data.accessToken, response.data.user);
         registerControl._reset();
       },
       onError(error) {
-        setError(error.message);
+        setError({
+          [activeTab]: error.message,
+        });
       },
     });
 
@@ -109,7 +113,7 @@ export default function LoginPage() {
   };
 
   const handleRegister = async (data: RegisterFormData) => {
-    userRegistration(data);
+    restaurantRegistration(data);
   };
 
   return (
@@ -167,7 +171,11 @@ export default function LoginPage() {
                     )}
                   />
 
-                  {error && <p className="text-sm text-red-500">{error}</p>}
+                  {error[activeTab] && (
+                    <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">
+                      {error[activeTab]}
+                    </div>
+                  )}
 
                   <Button type="submit" className="w-full" disabled={isPending}>
                     {isPending ? "Logging in..." : "Login"}
@@ -301,7 +309,7 @@ export default function LoginPage() {
                     render={({ field }) => (
                       <div>
                         <Label>Profile Photo</Label>
-                        <input
+                        <Input
                           type="file"
                           accept="image/*"
                           onChange={(e) => field.onChange(e.target.files?.[0])}
@@ -316,7 +324,7 @@ export default function LoginPage() {
                     render={({ field }) => (
                       <div>
                         <Label>ID Card</Label>
-                        <input
+                        <Input
                           type="file"
                           accept="image/*"
                           onChange={(e) => field.onChange(e.target.files?.[0])}
@@ -325,6 +333,12 @@ export default function LoginPage() {
                       </div>
                     )}
                   />
+
+                  {error[activeTab] && (
+                    <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">
+                      {error[activeTab]}
+                    </div>
+                  )}
 
                   <Button type="submit" className="w-full" disabled={isPending}>
                     {isPending ? "Creating account..." : "Create Account"}
