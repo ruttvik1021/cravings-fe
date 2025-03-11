@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    deleteCookie("jwt");
+    deleteCookie("token");
     deleteCookie("user");
     setUser(null);
     router.replace("/");
