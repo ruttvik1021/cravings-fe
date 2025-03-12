@@ -30,9 +30,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth } from "@/lib/authContext";
-import { cn } from "@/lib/utils";
+import { useAuth, UserRole } from "@/lib/authContext";
+import { cn, roleBaseRoutes } from "@/lib/utils";
 import { Package, Store, Users } from "lucide-react";
+import ErrorMessage from "./errorMessage";
 
 interface NavItem {
   title: string;
@@ -40,7 +41,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-type userTypes = "restaurant" | "delivery" | "admin";
+type userTypes = Exclude<UserRole, "user">;
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -76,7 +77,7 @@ const navItems: Record<userTypes, NavItem[]> = {
       icon: Package,
     },
   ],
-  restaurant: [
+  restaurant_owner: [
     {
       title: "Dashboard",
       href: "/restaurant/dashboard",
@@ -98,7 +99,7 @@ const navItems: Record<userTypes, NavItem[]> = {
       icon: Package,
     },
   ],
-  delivery: [
+  delivery_agent: [
     {
       title: "Available Orders",
       href: "/delivery/orders",
@@ -129,12 +130,14 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
-  const userTypeLabel = {
-    restaurant: "Restaurant Admin",
-    delivery: "Delivery Partner",
+  const isAccountApproved = user?.isApproved;
+
+  const userTypeLabel: { [K in userTypes]: string } = {
+    restaurant_owner: "Restaurant Admin",
+    delivery_agent: "Delivery Partner",
     admin: "Super Admin",
   };
 
@@ -167,24 +170,28 @@ export function DashboardLayout({
                 <span className="font-bold">Cravings</span>
               </Link>
               <div className="my-4 border-t border-honeydew/30"></div>
-              {navItems[userType].map((item) => {
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-2 rounded-lg px-3 py-2 text-primary",
-                      pathname === item.href
-                        ? "bg-honeydew/20 font-medium"
-                        : "hover:bg-honeydew/10"
-                    )}
-                    onClick={() => setIsMobileNavOpen(false)}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.title}
-                  </Link>
-                );
-              })}
+              {isAccountApproved ? (
+                navItems[userType].map((item) => {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg px-3 py-2 text-primary",
+                        pathname === item.href
+                          ? "bg-honeydew/20 font-medium"
+                          : "hover:bg-honeydew/10"
+                      )}
+                      onClick={() => setIsMobileNavOpen(false)}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.title}
+                    </Link>
+                  );
+                })
+              ) : (
+                <ErrorMessage message="Account not approved to access other pages" />
+              )}
               <div className="my-4 border-t border-honeydew/30"></div>
               <Button
                 variant="ghost"
@@ -231,11 +238,16 @@ export function DashboardLayout({
                 {userTypeLabel[userType]}
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-honeydew/30" />
-              <DropdownMenuItem className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer">
+              <DropdownMenuItem
+                className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"
+                onClick={() =>
+                  router.push(`${roleBaseRoutes[userType]}/profile`)
+                }
+              >
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
-              {userType === "restaurant" && (
+              {userType === "restaurant_owner" && (
                 <DropdownMenuItem
                   className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"
                   onClick={() => router.replace("/restaurant/setup")}
@@ -269,21 +281,25 @@ export function DashboardLayout({
             </Link>
           </div>
           <nav className="grid gap-2 p-4 text-sm">
-            {navItems[userType].map((item) => {
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-primary transition-all hover:bg-honeydew/20",
-                    pathname === item.href ? "bg-honeydew/20 font-medium" : ""
-                  )}
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.title}
-                </Link>
-              );
-            })}
+            {isAccountApproved ? (
+              navItems[userType].map((item) => {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-primary transition-all hover:bg-honeydew/20",
+                      pathname === item.href ? "bg-honeydew/20 font-medium" : ""
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.title}
+                  </Link>
+                );
+              })
+            ) : (
+              <ErrorMessage message="Account not approved to access other pages" />
+            )}
           </nav>
           <div className="mt-auto p-4">
             <div className="flex items-center gap-2 rounded-lg border border-honeydew/30 p-4 bg-white">
@@ -313,14 +329,25 @@ export function DashboardLayout({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white">
-                  <DropdownMenuItem className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer">
+                  <DropdownMenuItem
+                    className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"
+                    onClick={() =>
+                      router.push(`${roleBaseRoutes[userType]}/profile`)
+                    }
+                  >
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
+
+                  {userType === "restaurant_owner" && (
+                    <DropdownMenuItem
+                      className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"
+                      onClick={() => router.replace("/restaurant/setup")}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator className="bg-honeydew/30" />
                   <DropdownMenuItem
                     className="text-primary hover:bg-honeydew/20 hover:text-primary cursor-pointer"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 type InputType =
   | "text"
@@ -43,6 +44,7 @@ const TextField: React.FC<TextFieldProps> = ({
   // onCountryCodeChange,
 }) => {
   const [charCount, setCharCount] = useState(value?.length || 0);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setCharCount(value?.length);
@@ -110,8 +112,40 @@ const TextField: React.FC<TextFieldProps> = ({
             disabled={disabled}
             maxLength={maxLength}
             placeholder={placeholder}
-            className="flex-1 min-w-0 p-2 border rounded-md"
+            className={`flex-1 min-w-0 p-2 border rounded-md ${className} ${
+              error ? "border-red-500" : "border-gray-300"
+            }`}
           />
+        </div>
+      );
+    }
+
+    if (type === "password") {
+      return (
+        <div className="relative">
+          <input
+            type={type === "password" && showPassword ? "text" : type}
+            id={name}
+            name={name}
+            value={value}
+            onChange={handleChange}
+            onBlur={onBlur}
+            disabled={disabled}
+            maxLength={maxLength}
+            placeholder={placeholder}
+            className={`w-full p-2 border rounded-md pr-10 ${className} ${
+              error ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {type === "password" && (
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            >
+              {!showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          )}
         </div>
       );
     }

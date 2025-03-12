@@ -1,10 +1,7 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import type { Metadata } from "next";
+import type React from "react";
 import "../../app/globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Admin Portal",
@@ -17,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <DashboardLayout userType="restaurant" userName="Restaurent Owner">
+    <DashboardLayout userType="restaurant_owner" userName="Restaurent Owner">
       {children}
     </DashboardLayout>
   );

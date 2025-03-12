@@ -1,6 +1,7 @@
 "use client";
 
 import { deliveryAgentSignUpApi, userLoginApi } from "@/app/user/apis/auth";
+import ErrorMessage from "@/components/errorMessage";
 import TextField from "@/components/textfield";
 import { Button } from "@/components/ui/button";
 import {
@@ -175,9 +176,7 @@ export default function LoginPage() {
                   />
 
                   {error[activeTab] && (
-                    <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">
-                      {error[activeTab]}
-                    </div>
+                    <ErrorMessage message={error[activeTab]} />
                   )}
 
                   <Button type="submit" className="w-full" disabled={isPending}>
@@ -338,9 +337,7 @@ export default function LoginPage() {
                   />
 
                   {error[activeTab] && (
-                    <div className="bg-destructive/15 text-destructive text-sm p-2 rounded-md">
-                      {error[activeTab]}
-                    </div>
+                    <ErrorMessage message={error[activeTab]} />
                   )}
 
                   <Button type="submit" className="w-full" disabled={isPending}>

@@ -20,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import ErrorMessage from "@/components/errorMessage";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -99,7 +100,7 @@ export default function AdminLoginPage() {
                 )}
               />
 
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <ErrorMessage message={error} />}
 
               <Button
                 type="submit"

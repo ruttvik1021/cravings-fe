@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { userLoginApi, userSignUpApi } from "../apis/auth";
+import ErrorMessage from "@/components/errorMessage";
 
 // Zod validation schemas
 const loginSchema = z.object({
@@ -171,7 +172,7 @@ export default function LoginPage() {
                     )}
                   />
 
-                  {error && <p className="text-sm text-red-500">{error}</p>}
+                  {error && <ErrorMessage message={error} />}
 
                   <Button type="submit" className="w-full" disabled={isPending}>
                     {isPending ? "Logging in..." : "Login"}
