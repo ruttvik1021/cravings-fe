@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 type InputType =
   | "text"
@@ -8,6 +11,7 @@ type InputType =
   | "number"
   | "email"
   | "date"
+  | "time"
   | "tel";
 
 interface TextFieldProps {
@@ -60,7 +64,7 @@ const TextField: React.FC<TextFieldProps> = ({
     if (type === "textarea") {
       return (
         <div className="relative">
-          <textarea
+          <Textarea
             id={name}
             name={name}
             value={value}
@@ -102,7 +106,7 @@ const TextField: React.FC<TextFieldProps> = ({
               </SelectContent>
             </Select>
           )} */}
-          <input
+          <Input
             type="tel"
             id={name}
             name={name}
@@ -123,7 +127,7 @@ const TextField: React.FC<TextFieldProps> = ({
     if (type === "password") {
       return (
         <div className="relative">
-          <input
+          <Input
             type={type === "password" && showPassword ? "text" : type}
             id={name}
             name={name}
@@ -151,7 +155,7 @@ const TextField: React.FC<TextFieldProps> = ({
     }
 
     return (
-      <input
+      <Input
         type={type}
         id={name}
         name={name}
@@ -171,10 +175,10 @@ const TextField: React.FC<TextFieldProps> = ({
   return (
     <div className="w-full space-y-2">
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium">
+        <Label htmlFor={name} className="block text-sm font-medium">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        </Label>
       )}
 
       {renderInput()}

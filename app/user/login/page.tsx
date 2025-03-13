@@ -1,5 +1,6 @@
 "use client";
 
+import ErrorMessage from "@/components/errorMessage";
 import TextField from "@/components/textfield";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { userLoginApi, userSignUpApi } from "../apis/auth";
-import ErrorMessage from "@/components/errorMessage";
 
 // Zod validation schemas
 const loginSchema = z.object({
@@ -82,8 +82,6 @@ export default function LoginPage() {
         setError(error.message);
       },
     });
-
-  const isPending = isLoginPending || isRegisterPending;
 
   const {
     control: loginControl,
@@ -174,8 +172,12 @@ export default function LoginPage() {
 
                   {error && <ErrorMessage message={error} />}
 
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? "Logging in..." : "Login"}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoginPending}
+                  >
+                    {isLoginPending ? "Logging in..." : "Login"}
                   </Button>
                 </div>
               </form>
@@ -303,8 +305,14 @@ export default function LoginPage() {
                     )}
                   />
 
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? "Creating account..." : "Create Account"}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isRegisterPending}
+                  >
+                    {isRegisterPending
+                      ? "Creating account..."
+                      : "Create Account"}
                   </Button>
                 </div>
               </form>

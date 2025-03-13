@@ -1,7 +1,8 @@
 "use client";
 
-import { restaurantSignUpApi, userLoginApi } from "@/app/user/apis/auth";
+import { userLoginApi } from "@/app/user/apis/auth";
 import ErrorMessage from "@/components/errorMessage";
+import FileUpload from "@/components/fileupload";
 import TextField from "@/components/textfield";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/authContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import { restaurantSignUpApi } from "../apis/restaurants";
 
 // Zod validation schemas
 const loginSchema = z.object({
@@ -176,8 +176,12 @@ export default function LoginPage() {
                     <ErrorMessage message={error[activeTab]} />
                   )}
 
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? "Logging in..." : "Login"}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoginPending}
+                  >
+                    {isLoginPending ? "Logging in..." : "Login"}
                   </Button>
                 </div>
               </form>
@@ -306,30 +310,26 @@ export default function LoginPage() {
                     name="profilePhoto"
                     control={registerControl}
                     render={({ field }) => (
-                      <div>
-                        <Label>Profile Photo</Label>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => field.onChange(e.target.files?.[0])}
-                          required
-                        />
-                      </div>
+                      <FileUpload
+                        label="Profile Photo"
+                        error={registerErrors.profilePhoto?.message}
+                        onChange={(e) => field.onChange(e)}
+                        required
+                        accept="image/*"
+                      />
                     )}
                   />
                   <Controller
                     name="idCard"
                     control={registerControl}
                     render={({ field }) => (
-                      <div>
-                        <Label>ID Card</Label>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => field.onChange(e.target.files?.[0])}
-                          required
-                        />
-                      </div>
+                      <FileUpload
+                        label="ID Card"
+                        error={registerErrors.profilePhoto?.message}
+                        onChange={(e) => field.onChange(e)}
+                        required
+                        accept="image/*"
+                      />
                     )}
                   />
 
@@ -337,8 +337,14 @@ export default function LoginPage() {
                     <ErrorMessage message={error[activeTab]} />
                   )}
 
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? "Creating account..." : "Create Account"}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isRegisterPending}
+                  >
+                    {isRegisterPending
+                      ? "Creating account..."
+                      : "Create Account"}
                   </Button>
                 </div>
               </form>
