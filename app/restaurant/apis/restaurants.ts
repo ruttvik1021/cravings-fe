@@ -1,5 +1,6 @@
 import { AjaxUtils } from "@/ajax/ajax";
 import { RestaurantSetupFormData } from "../setup/page";
+import { CreateCategoryForm } from "../menu/page";
 
 export const restaurantSignUpApi = (
   values: RestaurantAndDeliveryAgentRegistration
@@ -24,7 +25,7 @@ export const restaurantSignUpApi = (
 };
 
 export const getRestaurantsDetails = () => {
-  const url = "/restaurants/restaurant_owners";
+  const url = "/restaurants/setup";
   return AjaxUtils.getAjax(url, true);
 };
 
@@ -45,4 +46,22 @@ export const setupRestaurantApi = (data: RestaurantSetupFormData) => {
     formData.append("images", file);
   });
   return AjaxUtils.postAjax(url, formData, true);
+};
+
+export const getCategories = () => {
+  const url = "/menu/categories";
+  return AjaxUtils.getAjax(url, true);
+};
+
+export const createCategory = (data: CreateCategoryForm) => {
+  const url = "/menu/category";
+  return AjaxUtils.postAjax(url, data, true);
+};
+export const updateCategory = (data: CreateCategoryForm, id: string) => {
+  const url = `/menu/category/${id}`;
+  return AjaxUtils.putAjax(url, data, true);
+};
+export const deleteCategory = (id: string) => {
+  const url = "/menu/category";
+  return AjaxUtils.deleteAjax(url, true);
 };

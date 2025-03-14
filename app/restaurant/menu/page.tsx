@@ -1,14 +1,18 @@
-import Image from "next/image";
-import { Edit, Package, Plus, Trash } from "lucide-react";
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller, FormProvider } from "react-hook-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+// Add these imports
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  getCategories,
+  // createMenuItem,
+  createCategory,
+} from "../apis/restaurants";
+import PageHeader from "@/components/pageHeader";
+import { Tabs } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -18,137 +22,96 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { DashboardLayout } from "@/components/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import TextField from "@/components/textfield";
+
+// Zod Schemas
+const categorySchema = z.object({
+  name: z.string().min(1, "Category name is required"),
+  description: z.string().optional(),
+});
+
+export type CreateCategoryForm = z.infer<typeof categorySchema>;
+
+const menuItemSchema = z.object({
+  name: z.string().min(1, "Item name is required"),
+  description: z.string().min(1, "Description is required"),
+  price: z.number().min(1, "Price must be at least ₹1"),
+  category: z.string().min(1, "Category is required"),
+  image: z.instanceof(FileList).optional(),
+  isAvailable: z.boolean().default(true),
+});
+
+export type AddMenuItemForm = z.infer<typeof menuItemSchema>;
 
 export default function RestaurantMenuPage() {
-  const navItems = [
-    {
-      title: "Dashboard",
-      href: "/restaurant/dashboard",
-      icon: Package,
-    },
-    {
-      title: "Orders",
-      href: "/restaurant/orders",
-      icon: Package,
-    },
-    {
-      title: "Menu",
-      href: "/restaurant/menu",
-      icon: Package,
-    },
-    {
-      title: "Financials",
-      href: "/restaurant/financials",
-      icon: Package,
-    },
-  ];
+  const queryClient = useQueryClient();
 
-  // Mock menu categories and items
-  const menuCategories = [
-    {
-      id: "burgers",
-      name: "Burgers",
-      items: [
-        {
-          id: 1,
-          name: "Classic Cheeseburger",
-          description:
-            "Beef patty with cheddar cheese, lettuce, tomato, and special sauce",
-          price: 8.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: true,
-        },
-        {
-          id: 2,
-          name: "Double Bacon Burger",
-          description: "Two beef patties with bacon, cheese, and BBQ sauce",
-          price: 12.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: true,
-        },
-        {
-          id: 3,
-          name: "Veggie Burger",
-          description:
-            "Plant-based patty with avocado, lettuce, and vegan mayo",
-          price: 9.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: false,
-        },
-      ],
+  // Fetch categories
+  // const { data: categories = [] } = useQuery({
+  //   queryKey: ["menuCategories"],
+  //   // queryFn: getCategories,
+  //   queryFn: () => {},
+  // });
+
+  // Category Form
+  const {
+    control: categoryForm,
+    formState: { errors: categoryErrors },
+  } = useForm({
+    resolver: zodResolver(categorySchema),
+  });
+
+  // Menu Item Form
+  const {
+    control: itemForm,
+    reset: resetCategoryForm,
+    formState: { errors: itemFormError },
+  } = useForm({
+    resolver: zodResolver(menuItemSchema),
+    defaultValues: { isAvailable: true },
+  });
+
+  // Create Category Mutation
+  const { nutate: createCategoryMutation, isLoading: isCreatingCategory } =
+    useMutation({
+      mutationFn: (data: CreateCategoryForm) => createCategory(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["menuCategories"] });
+        toast.success("Category created successfully");
+        resetCategoryForm();
+      },
+      onError: (error) => toast.error(error.message),
+    });
+
+  // Create Menu Item Mutation
+  const createMenuItemMutation = useMutation({
+    mutationFn: () => {},
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["menuItems"] });
+      toast.success("Menu item created successfully");
+      itemForm.reset();
     },
-    {
-      id: "sides",
-      name: "Sides",
-      items: [
-        {
-          id: 4,
-          name: "French Fries",
-          description: "Crispy golden fries with sea salt",
-          price: 3.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: true,
-        },
-        {
-          id: 5,
-          name: "Onion Rings",
-          description: "Crispy battered onion rings",
-          price: 4.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: true,
-        },
-      ],
-    },
-    {
-      id: "drinks",
-      name: "Drinks",
-      items: [
-        {
-          id: 6,
-          name: "Milkshake",
-          description: "Creamy vanilla, chocolate, or strawberry",
-          price: 5.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: true,
-        },
-        {
-          id: 7,
-          name: "Soft Drink",
-          description: "Cola, lemon-lime, or orange soda",
-          price: 2.99,
-          image: "/placeholder.svg?height=100&width=100",
-          available: true,
-        },
-      ],
-    },
-  ];
+    onError: (error) => toast.error(error.message),
+  });
 
   return (
-    <>
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Menu Management</h2>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Category
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+    <div>
+      <PageHeader title={"Menu Management"} />
+
+      {/* <Tabs defaultValue={categories[0]?.id} className="space-y-4"> */}
+      <div className="flex items-center justify-between">
+        {/* Add Category Dialog */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Category
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <form onSubmit={categoryForm.handleSubmit(createCategoryMutation)}>
               <DialogHeader>
                 <DialogTitle>Add New Category</DialogTitle>
                 <DialogDescription>
@@ -156,172 +119,195 @@ export default function RestaurantMenuPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="category-name">Category Name</Label>
-                  <Input
-                    id="category-name"
-                    placeholder="e.g., Appetizers, Desserts"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="category-description">
-                    Description (Optional)
-                  </Label>
-                  <Textarea
-                    id="category-description"
-                    placeholder="Describe this category..."
-                  />
-                </div>
+                <Controller
+                  name="name"
+                  control={categoryForm}
+                  render={({ field }) => (
+                    <TextField
+                      type="text"
+                      label="Category Name"
+                      name="name"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={categoryErrors.name?.message as string}
+                      required
+                    />
+                  )}
+                />
+                <Controller
+                  name="description"
+                  control={categoryForm}
+                  render={({ field }) => (
+                    <TextField
+                      type="textarea"
+                      label="Description (Optional)"
+                      name="description"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={categoryErrors.description?.message as string}
+                    />
+                  )}
+                />
               </div>
               <DialogFooter>
                 <Button type="submit">Save Category</Button>
               </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
-        <Tabs defaultValue={menuCategories[0].id} className="space-y-4">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              {menuCategories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id}>
-                  {category.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Item
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[525px]">
-                <DialogHeader>
-                  <DialogTitle>Add Menu Item</DialogTitle>
-                  <DialogDescription>
-                    Add a new item to your menu. Fill in all the details below.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="item-name">Item Name</Label>
-                    <Input id="item-name" placeholder="e.g., Deluxe Burger" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="item-description">Description</Label>
-                    <Textarea
-                      id="item-description"
-                      placeholder="Describe this item..."
+        {/* Add Menu Item Dialog */}
+        {/* <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Item
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[525px]">
+              <FormProvider {...itemForm}>
+                <form
+                  onSubmit={itemForm.handleSubmit(
+                    createMenuItemMutation.mutate
+                  )}
+                >
+                  <DialogHeader>
+                    <DialogTitle>Add Menu Item</DialogTitle>
+                    <DialogDescription>
+                      Add a new item to your menu. Fill in all the details
+                      below.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <Controller
+                      name="name"
+                      control={itemForm.control}
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          label="Item Name"
+                          error={fieldState.error?.message}
+                          required
+                          {...field}
+                        />
+                      )}
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="item-price">Price ($)</Label>
-                      <Input
-                        id="item-price"
-                        type="number"
-                        step="0.01"
-                        placeholder="9.99"
+                    <Controller
+                      name="description"
+                      control={itemForm.control}
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          label="Description"
+                          as="textarea"
+                          error={fieldState.error?.message}
+                          required
+                          {...field}
+                        />
+                      )}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <Controller
+                        name="price"
+                        control={itemForm.control}
+                        render={({ field, fieldState }) => (
+                          <TextField
+                            label="Price (₹)"
+                            type="number"
+                            step="0.01"
+                            error={fieldState.error?.message}
+                            required
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                          />
+                        )}
+                      />
+                      <Controller
+                        name="category"
+                        control={itemForm.control}
+                        render={({ field, fieldState }) => (
+                          <div className="grid gap-2">
+                            <Label>Category</Label>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map((category) => (
+                                  <SelectItem
+                                    key={category.id}
+                                    value={category.id}
+                                  >
+                                    {category.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {fieldState.error && (
+                              <span className="text-sm text-destructive">
+                                {fieldState.error.message}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="item-category">Category</Label>
-                      <Select>
-                        <SelectTrigger id="item-category">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {menuCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="item-image">Item Image</Label>
-                    <Input id="item-image" type="file" />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="item-available" defaultChecked />
-                    <Label htmlFor="item-available">Available for Order</Label>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Save Item</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {menuCategories.map((category) => (
-            <TabsContent
-              key={category.id}
-              value={category.id}
-              className="space-y-4"
-            >
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {category.items.map((item) => (
-                  <Card
-                    key={item.id}
-                    className={!item.available ? "opacity-60" : ""}
-                  >
-                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                      <div>
-                        <CardTitle>{item.name}</CardTitle>
-                        <CardDescription className="mt-1">
-                          ${item.price.toFixed(2)}
-                        </CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex gap-4">
-                        <div className="relative h-20 w-20 rounded-md overflow-hidden">
-                          <Image
-                            src={item.image || "/placeholder.svg"}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
+                    <Controller
+                      name="image"
+                      control={itemForm.control}
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          label="Item Image"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => field.onChange(e.target.files)}
+                          error={fieldState.error?.message}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name="isAvailable"
+                      control={itemForm.control}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
                           />
+                          <Label>Available for Order</Label>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-muted-foreground">
-                            {item.description}
-                          </p>
-                          <div className="flex items-center mt-4 space-x-2">
-                            <Switch
-                              id={`available-${item.id}`}
-                              checked={item.available}
-                            />
-                            <Label
-                              htmlFor={`available-${item.id}`}
-                              className="text-sm"
-                            >
-                              {item.available ? "Available" : "Unavailable"}
-                            </Label>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+                      )}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      type="submit"
+                      loading={createMenuItemMutation.isPending}
+                    >
+                      Save Item
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </FormProvider>
+            </DialogContent>
+          </Dialog> */}
       </div>
-    </>
+
+      {/* Categories Tabs */}
+      {/* {categories.map((category) => (
+          <TabsContent
+            key={category.id}
+            value={category.id}
+            className="space-y-4"
+          >
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            </div>
+          </TabsContent>
+        ))} */}
+      {/* </Tabs> */}
+    </div>
   );
 }

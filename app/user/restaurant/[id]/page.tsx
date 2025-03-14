@@ -1,3 +1,4 @@
+"use client";
 import { Clock, Info, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,22 +7,49 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { getRestaurantsDetails } from "../../apis/restaurant";
+import { useParams } from "next/navigation";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { toTitleCase } from "../../../utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
-export default function RestaurantPage({ params }: { params: { id: string } }) {
+export default function RestaurantPage() {
+  const params = useParams(); // ✅ Use useParams() to unwrap the params
+  const restaurantId = "67d3de749cfcad4c69019fc6" as string; // Convert to string explicitly
+
+  const { data: restaurant, isLoading } = useQuery({
+    queryKey: [`restaurant-${params.id}`],
+    queryFn: async () => {
+      const restaurant = await getRestaurantsDetails(restaurantId);
+      console.log("restaurant", restaurant);
+      return restaurant.data;
+    },
+  });
   // Mock restaurant data
-  const restaurant = {
-    id: params.id,
-    name: "Burger Palace",
-    image: "/placeholder.svg?height=300&width=800",
-    cuisine: "Fast Food",
-    rating: 4.5,
-    deliveryTime: "25-30 min",
-    distance: "1.2 km",
-    address: "123 Burger St, Foodville, 12345",
-    description:
-      "Serving the juiciest burgers in town since 2010. Our ingredients are locally sourced and our recipes are crafted to perfection.",
-    openingHours: "10:00 AM - 10:00 PM",
-  };
+  // const restaurant = {
+  //   id: params.id,
+  //   name: "Burger Palace",
+  //   image: "/placeholder.svg?height=300&width=800",
+  //   cuisine: "Fast Food",
+  //   rating: 4.5,
+  //   deliveryTime: "25-30 min",
+  //   distance: "1.2 km",
+  //   address: "123 Burger St, Foodville, 12345",
+  //   description:
+  //     "Serving the juiciest burgers in town since 2010. Our ingredients are locally sourced and our recipes are crafted to perfection.",
+  //   openingHours: "10:00 AM - 10:00 PM",
+  // };
 
   // Mock menu categories and items
   const menuCategories = [
@@ -98,20 +126,44 @@ export default function RestaurantPage({ params }: { params: { id: string } }) {
     },
   ];
 
+  if (isLoading) {
+    return <>Loading...</>;
+  }
+
+  console.log("restaurant", restaurant);
+
   return (
     <>
       <div className="relative h-64 md:h-80 mb-2">
-        <Image
-          src={restaurant.image || "/placeholder.svg"}
-          alt={restaurant.name}
-          fill
-          className="object-cover"
-        />
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+        >
+          <CarouselContent>
+            {restaurant.images.map((img: string, index: number) => (
+              <CarouselItem key={index}>
+                <Image
+                  src={img}
+                  alt={`Restaurant Image ${index}`}
+                  fill
+                  className="object-cover"
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-4 text-white w-full">
-          <h1 className="text-2xl md:text-3xl font-bold">{restaurant.name}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            {restaurant.restaurantName}
+          </h1>
           <div className="flex items-center gap-2 mt-1">
-            <span>{restaurant.cuisine}</span>
+            <span>
+              {toTitleCase(restaurant.foodCategory)},{" "}
+              {toTitleCase(restaurant.restaurantType)}
+            </span>
             <span className="h-1 w-1 rounded-full bg-white"></span>
             <div className="flex items-center">
               <Star className="h-4 w-4 fill-white mr-1" />
@@ -128,11 +180,9 @@ export default function RestaurantPage({ params }: { params: { id: string } }) {
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-                  <span className="text-sm">{restaurant.deliveryTime}</span>
-                </div>
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 text-muted-foreground mr-1" />
-                  <span className="text-sm">{restaurant.distance}</span>
+                  <span className="text-sm">
+                    {restaurant.openingTime} - {restaurant.closingTime}
+                  </span>
                 </div>
                 <Button variant="outline" size="sm" className="ml-auto">
                   <Info className="h-4 w-4 mr-1" />
@@ -152,7 +202,7 @@ export default function RestaurantPage({ params }: { params: { id: string } }) {
               <div className="mt-2 text-sm">
                 <div className="font-medium">Hours</div>
                 <div className="text-muted-foreground">
-                  {restaurant.openingHours}
+                  {restaurant.openingTime} - {restaurant.closingTime}
                 </div>
               </div>
             </CardContent>
@@ -173,44 +223,28 @@ export default function RestaurantPage({ params }: { params: { id: string } }) {
 
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Menu</h2>
-          <Tabs defaultValue={menuCategories[0].id} className="w-full">
-            <TabsList className="mb-4 flex w-full overflow-x-auto pb-2 justify-start">
-              {menuCategories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id}>
-                  {category.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
 
-            {menuCategories.map((category) => (
-              <TabsContent
-                key={category.id}
-                value={category.id}
-                className="mt-0"
-              >
-                <div className="space-y-4">
-                  {category.items.map((item) => (
-                    <div key={item.id} className="flex gap-4 border-b pb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center">
-                          <h3 className="font-medium">{item.name}</h3>
-                          {item.popular && (
-                            <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                              Popular
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {item.description}
-                        </p>
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="font-medium">
-                            ${item.price.toFixed(2)}
-                          </span>
-                          <Button size="sm">Add</Button>
-                        </div>
-                      </div>
-                      <div className="relative h-20 w-20 rounded-md overflow-hidden">
+          <Accordion
+            type="multiple"
+            className="w-full"
+            defaultValue={[menuCategories[0].id]}
+          >
+            {menuCategories.map((category, index) => (
+              <AccordionItem value={category.id} key={index}>
+                <AccordionTrigger>{category.name}</AccordionTrigger>
+                <AccordionContent className="p-4 border-b-primary">
+                  {category.items.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        "flex flex-col sm:flex-row gap-4 border-b p-4 items-center sm:items-start",
+                        {
+                          ["border-none"]: index === category.items.length - 1,
+                        }
+                      )}
+                    >
+                      {/* Image at the top on mobile */}
+                      <div className="relative h-24 w-24 sm:h-20 sm:w-20 rounded-md overflow-hidden">
                         <Image
                           src={item.image || "/placeholder.svg"}
                           alt={item.name}
@@ -218,12 +252,28 @@ export default function RestaurantPage({ params }: { params: { id: string } }) {
                           className="object-cover"
                         />
                       </div>
+
+                      {/* Text Section Below Image on Mobile */}
+                      <div className="flex-1 text-center sm:text-left">
+                        <h3 className="font-medium text-base sm:text-lg">
+                          {item.name}
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                          {item.description}
+                        </p>
+                        <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+                          <span className="font-medium text-lg">
+                            ${item.price.toFixed(2)}
+                          </span>
+                          <Button size="sm">Add</Button>
+                        </div>
+                      </div>
                     </div>
                   ))}
-                </div>
-              </TabsContent>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </Tabs>
+          </Accordion>
         </div>
       </div>
     </>

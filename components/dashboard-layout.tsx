@@ -146,16 +146,12 @@ export function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen max-h-screen flex-col overflow-hidden">
       {/* Mobile Nav */}
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 md:px-6 lg:hidden shadow-sm">
         <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
           <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="lg:hidden border-honeydew text-primary"
-            >
+            <Button variant="ghost" size="icon">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
             </Button>
@@ -269,7 +265,7 @@ export function DashboardLayout({
         </div>
       </header>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         <aside className="hidden w-64 flex-col border-r border-honeydew/30  lg:flex">
           <div className="flex h-16 items-center border-b border-honeydew/30 px-6">
@@ -363,7 +359,9 @@ export function DashboardLayout({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto space-y-4 p-4 md:p-8 pt-6">
+          {children}
+        </main>
       </div>
     </div>
   );
