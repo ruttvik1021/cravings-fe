@@ -1,5 +1,5 @@
 import { UploadCloud, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "./ui/label";
 
 interface FileUploadProps {
@@ -10,6 +10,7 @@ interface FileUploadProps {
   accept?: string;
   required?: boolean;
   name?: string;
+  value?: File[];
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -20,8 +21,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
   accept = "image/*",
   required = false,
   name = "",
+  value = [],
 }) => {
   const [files, setFiles] = useState<File[]>([]);
+
+  useEffect(() => {
+    if (value && value.length > 0) {
+      console.log("values", value);
+      setFiles(value);
+    }
+  }, [value]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;

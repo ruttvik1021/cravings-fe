@@ -20,12 +20,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { setupRestaurantApi } from "../apis/restaurants";
+import {
+  getRestaurantsDetails,
+  setupRestaurantApi,
+  updateRestaurantApi,
+} from "../apis/restaurants";
+import { urlToFile } from "@/app/utils";
+
+const allowedMbPerImage = 2;
+const maxFileSize = allowedMbPerImage * 1024 * 1024; // Convert MB to bytes
 
 // Zod schema for validation
 const restaurantSetupSchema = z.object({
@@ -40,42 +48,98 @@ const restaurantSetupSchema = z.object({
   logo: z
     .instanceof(FileList, { message: "Please upload at least one image" })
     .refine((files) => files.length > 0, "Logo is required")
-    .refine((files) => files[0].size <= 5_000_000, "Max file size is 5MB"),
+    .refine(
+      (files) => files[0].size <= maxFileSize,
+      `Max file size is ${allowedMbPerImage}MB`
+    ),
   images: z
     .instanceof(FileList, { message: "Please upload at least one image" })
     .refine((files) => files.length <= 5, "Maximum 5 images allowed")
     .refine(
-      (files) => Array.from(files).every((file) => file.size <= 5_000_000),
-      "Max file size is 5MB"
+      (files) => Array.from(files).every((file) => file.size <= maxFileSize),
+      `Max file size is ${allowedMbPerImage}MB`
     ),
   openingTime: z.string().min(1, "Opening time is required"),
   closingTime: z.string().min(1, "Closing time is required"),
 });
 
 export type RestaurantSetupFormData = z.infer<typeof restaurantSetupSchema>;
-
 export default function RestaurantSetupPage() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<RestaurantSetupFormData>({
     resolver: zodResolver(restaurantSetupSchema),
   });
 
-  const { mutate: setupRestaurant, isPending } = useMutation({
+  const { data: setupData } = useQuery({
+    queryKey: ["restuarant-setup"],
+
+    queryFn: async () => {
+      const restaurants = await getRestaurantsDetails();
+      return restaurants.data;
+    },
+  });
+
+  useEffect(() => {
+    async function fetchAndSetImages() {
+      if (setupData) {
+        const formValues = { ...setupData };
+
+        // Convert logo URL to File
+        if (setupData.logo) {
+          const logoFile = await urlToFile(setupData.logo, "logo.jpg");
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(logoFile);
+          formValues.logo = dataTransfer.files; // FileList
+        }
+
+        // Convert image URLs to FileList
+        if (setupData.images?.length) {
+          const imageFiles = await Promise.all(
+            setupData.images.map((url: string, index: number) =>
+              urlToFile(url, `image${index + 1}.jpg`)
+            )
+          );
+          const dataTransfer = new DataTransfer();
+          imageFiles.forEach((file) => dataTransfer.items.add(file));
+          formValues.images = dataTransfer.files; // FileList
+        }
+        reset(formValues);
+      }
+    }
+
+    fetchAndSetImages();
+  }, [setupData, reset]);
+
+  const { mutate: setupRestaurant, isPending: isSettingUp } = useMutation({
     mutationFn: async (data: RestaurantSetupFormData) =>
       setupRestaurantApi(data),
-    onSuccess: () => router.push("/dashboard"),
+    onSuccess: () => router.push("/restaurant/dashboard"),
     onError: (error) => setError(error.message),
   });
 
+  const { mutate: updateRestuarant, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: RestaurantSetupFormData) =>
+      updateRestaurantApi(data, setupData._id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["restuarant-setup"],
+      }),
+    onError: (error) => setError(error.message),
+  });
+
+  console.log("control", { values: control._formValues, errors: errors });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-      <Card className="mx-auto max-w-2xl w-full">
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Restaurant Setup</CardTitle>
           <CardDescription>
@@ -84,7 +148,9 @@ export default function RestaurantSetupPage() {
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={handleSubmit((data) => setupRestaurant(data))}
+            onSubmit={handleSubmit((data) =>
+              setupData ? updateRestuarant(data) : setupRestaurant(data)
+            )}
             className="grid gap-6"
           >
             {/* Restaurant Name */}
@@ -105,7 +171,7 @@ export default function RestaurantSetupPage() {
             />
 
             {/* Restaurant Type and Food Category */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Controller
                 name="restaurantType"
                 control={control}
@@ -203,7 +269,7 @@ export default function RestaurantSetupPage() {
             />
 
             {/* City and Pincode */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Controller
                 name="city"
                 control={control}
@@ -249,6 +315,7 @@ export default function RestaurantSetupPage() {
                   required
                   accept="image/*"
                   name="logo"
+                  value={field.value ? Array.from(field.value) : []}
                 />
               )}
             />
@@ -266,6 +333,7 @@ export default function RestaurantSetupPage() {
                   required
                   multiple
                   name="images"
+                  value={field.value ? Array.from(field.value) : []}
                 />
               )}
             />
@@ -309,12 +377,16 @@ export default function RestaurantSetupPage() {
             {error && <ErrorMessage message={error} />}
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Submitting..." : "Complete Setup"}
+            <Button type="submit" disabled={isSettingUp || isUpdating}>
+              {isSettingUp || isUpdating
+                ? "Submitting..."
+                : setupData
+                ? "Update"
+                : "Complete Setup"}
             </Button>
           </form>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

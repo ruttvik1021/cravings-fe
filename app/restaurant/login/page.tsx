@@ -87,20 +87,14 @@ export default function LoginPage() {
       },
     });
 
-  const isPending = isLoginPending || isRegisterPending;
-
-  const {
-    control: loginControl,
-    handleSubmit: handleLoginSubmit,
-    formState: { errors: loginErrors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
+  const { control: loginControl, handleSubmit: handleLoginSubmit } =
+    useForm<LoginFormData>({
+      resolver: zodResolver(loginSchema),
+    });
 
   const {
     control: registerControl,
     handleSubmit: handleRegisterSubmit,
-    formState: { errors: registerErrors },
     setValue,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -142,14 +136,14 @@ export default function LoginPage() {
                   <Controller
                     name="email"
                     control={loginControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="email"
                         label="Email"
                         name="email"
                         value={field.value}
                         onChange={field.onChange}
-                        error={loginErrors.email?.message}
+                        error={fieldState.error?.message}
                         placeholder="m@example.com"
                         required
                       />
@@ -159,14 +153,14 @@ export default function LoginPage() {
                   <Controller
                     name="password"
                     control={loginControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="password"
                         label="Password"
                         name="password"
                         value={field.value}
                         onChange={field.onChange}
-                        error={loginErrors.password?.message}
+                        error={fieldState.error?.message}
                         required
                       />
                     )}
@@ -192,14 +186,14 @@ export default function LoginPage() {
                   <Controller
                     name="name"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="text"
                         label="Full Name"
                         name="name"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.name?.message}
+                        error={fieldState.error?.message}
                         required
                       />
                     )}
@@ -208,14 +202,14 @@ export default function LoginPage() {
                   <Controller
                     name="phone"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="tel"
                         label="Mobile Number"
                         name="phone"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.phone?.message}
+                        error={fieldState.error?.message}
                         countryCode={countryCode}
                         onCountryCodeChange={(code) => {
                           setCountryCode(code);
@@ -229,14 +223,14 @@ export default function LoginPage() {
                   <Controller
                     name="email"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="email"
                         label="Email"
                         name="email"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.email?.message}
+                        error={fieldState.error?.message}
                         placeholder="m@example.com"
                         required
                       />
@@ -246,14 +240,14 @@ export default function LoginPage() {
                   <Controller
                     name="address"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="text"
                         label="Address"
                         name="address"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.address?.message}
+                        error={fieldState.error?.message}
                         required
                       />
                     )}
@@ -262,14 +256,14 @@ export default function LoginPage() {
                   <Controller
                     name="pincode"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="text"
                         label="Pincode"
                         name="pincode"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.pincode?.message}
+                        error={fieldState.error?.message}
                         required
                       />
                     )}
@@ -278,14 +272,14 @@ export default function LoginPage() {
                   <Controller
                     name="password"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="password"
                         label="Password"
                         name="password"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.password?.message}
+                        error={fieldState.error?.message}
                         required
                       />
                     )}
@@ -294,14 +288,14 @@ export default function LoginPage() {
                   <Controller
                     name="confirmPassword"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         type="password"
                         label="Confirm Password"
                         name="confirmPassword"
                         value={field.value}
                         onChange={field.onChange}
-                        error={registerErrors.confirmPassword?.message}
+                        error={fieldState.error?.message}
                         required
                       />
                     )}
@@ -309,10 +303,10 @@ export default function LoginPage() {
                   <Controller
                     name="profilePhoto"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FileUpload
                         label="Profile Photo"
-                        error={registerErrors.profilePhoto?.message}
+                        error={fieldState.error?.message}
                         onChange={(e) => field.onChange(e)}
                         required
                         accept="image/*"
@@ -322,10 +316,10 @@ export default function LoginPage() {
                   <Controller
                     name="idCard"
                     control={registerControl}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FileUpload
                         label="ID Card"
-                        error={registerErrors.profilePhoto?.message}
+                        error={fieldState.error?.message}
                         onChange={(e) => field.onChange(e)}
                         required
                         accept="image/*"
