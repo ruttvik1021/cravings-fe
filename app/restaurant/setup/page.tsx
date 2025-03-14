@@ -20,12 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { getRestaurantsDetails, setupRestaurantApi } from "../apis/restaurants";
+import {
+  getRestaurantsDetails,
+  setupRestaurantApi,
+  updateRestaurantApi,
+} from "../apis/restaurants";
+import { urlToFile } from "@/app/utils";
 
 const allowedMbPerImage = 2;
 const maxFileSize = allowedMbPerImage * 1024 * 1024; // Convert MB to bytes
@@ -59,17 +64,10 @@ const restaurantSetupSchema = z.object({
 });
 
 export type RestaurantSetupFormData = z.infer<typeof restaurantSetupSchema>;
-
-async function urlToFile(url: string, filename: string): Promise<File> {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new File([blob], filename, { type: blob.type });
-}
-
 export default function RestaurantSetupPage() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState<boolean>(false);
 
   const {
     control,
@@ -82,9 +80,10 @@ export default function RestaurantSetupPage() {
 
   const { data: setupData } = useQuery({
     queryKey: ["restuarant-setup"],
+
     queryFn: async () => {
       const restaurants = await getRestaurantsDetails();
-      return restaurants.data[0];
+      return restaurants.data;
     },
   });
 
@@ -96,7 +95,9 @@ export default function RestaurantSetupPage() {
         // Convert logo URL to File
         if (setupData.logo) {
           const logoFile = await urlToFile(setupData.logo, "logo.jpg");
-          formValues.logo = [logoFile];
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(logoFile);
+          formValues.logo = dataTransfer.files; // FileList
         }
 
         // Convert image URLs to FileList
@@ -106,9 +107,10 @@ export default function RestaurantSetupPage() {
               urlToFile(url, `image${index + 1}.jpg`)
             )
           );
-          formValues.images = imageFiles;
+          const dataTransfer = new DataTransfer();
+          imageFiles.forEach((file) => dataTransfer.items.add(file));
+          formValues.images = dataTransfer.files; // FileList
         }
-
         reset(formValues);
       }
     }
@@ -116,12 +118,24 @@ export default function RestaurantSetupPage() {
     fetchAndSetImages();
   }, [setupData, reset]);
 
-  const { mutate: setupRestaurant, isPending } = useMutation({
+  const { mutate: setupRestaurant, isPending: isSettingUp } = useMutation({
     mutationFn: async (data: RestaurantSetupFormData) =>
       setupRestaurantApi(data),
     onSuccess: () => router.push("/restaurant/dashboard"),
     onError: (error) => setError(error.message),
   });
+
+  const { mutate: updateRestuarant, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: RestaurantSetupFormData) =>
+      updateRestaurantApi(data, setupData._id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["restuarant-setup"],
+      }),
+    onError: (error) => setError(error.message),
+  });
+
+  console.log("control", { values: control._formValues, errors: errors });
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -134,7 +148,9 @@ export default function RestaurantSetupPage() {
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={handleSubmit((data) => setupRestaurant(data))}
+            onSubmit={handleSubmit((data) =>
+              setupData ? updateRestuarant(data) : setupRestaurant(data)
+            )}
             className="grid gap-6"
           >
             {/* Restaurant Name */}
@@ -361,8 +377,12 @@ export default function RestaurantSetupPage() {
             {error && <ErrorMessage message={error} />}
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Submitting..." : "Complete Setup"}
+            <Button type="submit" disabled={isSettingUp || isUpdating}>
+              {isSettingUp || isUpdating
+                ? "Submitting..."
+                : setupData
+                ? "Update"
+                : "Complete Setup"}
             </Button>
           </form>
         </CardContent>

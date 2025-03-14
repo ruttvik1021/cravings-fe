@@ -5,6 +5,7 @@ import "./globals.css";
 import RouteLoader from "@/components/routeLoader";
 import QueryWrapper from "@/components/queryWrapper";
 import { AuthProvider } from "@/lib/authContext";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <RouteLoader />
+          <Toaster richColors />
           <QueryWrapper>{children}</QueryWrapper>
         </AuthProvider>
       </body>

@@ -25,14 +25,13 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function RestaurantPage() {
-  const params = useParams(); // ✅ Use useParams() to unwrap the params
-  const restaurantId = "67d3de749cfcad4c69019fc6" as string; // Convert to string explicitly
+  const params = useParams();
+  const restaurantId = params.id as string;
 
-  const { data: restaurant, isLoading } = useQuery({
+  const { data: restaurant, isLoading } = useQuery<Restaurant>({
     queryKey: [`restaurant-${params.id}`],
     queryFn: async () => {
       const restaurant = await getRestaurantsDetails(restaurantId);
-      console.log("restaurant", restaurant);
       return restaurant.data;
     },
   });
@@ -130,30 +129,19 @@ export default function RestaurantPage() {
     return <>Loading...</>;
   }
 
-  console.log("restaurant", restaurant);
+  if (!restaurant) {
+    return <>No restaurant found...</>;
+  }
 
   return (
     <>
       <div className="relative h-64 md:h-80 mb-2">
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-        >
-          <CarouselContent>
-            {restaurant.images.map((img: string, index: number) => (
-              <CarouselItem key={index}>
-                <Image
-                  src={img}
-                  alt={`Restaurant Image ${index}`}
-                  fill
-                  className="object-cover"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
+        <Image
+          src={restaurant.logo}
+          alt={`Restaurant Image`}
+          fill
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-4 text-white w-full">
           <h1 className="text-2xl md:text-3xl font-bold">
@@ -167,7 +155,7 @@ export default function RestaurantPage() {
             <span className="h-1 w-1 rounded-full bg-white"></span>
             <div className="flex items-center">
               <Star className="h-4 w-4 fill-white mr-1" />
-              <span>{restaurant.rating}</span>
+              <span>4.4</span>
             </div>
           </div>
         </div>
@@ -184,10 +172,12 @@ export default function RestaurantPage() {
                     {restaurant.openingTime} - {restaurant.closingTime}
                   </span>
                 </div>
-                <Button variant="outline" size="sm" className="ml-auto">
-                  <Info className="h-4 w-4 mr-1" />
-                  More Info
-                </Button>
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 text-muted-foreground mr-1" />
+                  <span className="text-sm">
+                    {restaurant.city} - {restaurant.pincode}
+                  </span>
+                </div>
               </div>
               <Separator className="my-4" />
               <p className="text-sm text-muted-foreground">

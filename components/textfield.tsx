@@ -12,14 +12,15 @@ type InputType =
   | "email"
   | "date"
   | "time"
+  | "search"
   | "tel";
 
 interface TextFieldProps {
   type: InputType;
   label?: string;
   name: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: string | number;
+  onChange: (value: string | number) => void;
   onBlur?: () => void;
   required?: boolean;
   placeholder?: string;
@@ -47,17 +48,25 @@ const TextField: React.FC<TextFieldProps> = ({
   // countryCode,
   // onCountryCodeChange,
 }) => {
-  const [charCount, setCharCount] = useState(value?.length || 0);
+  const [charCount, setCharCount] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    setCharCount(value?.length);
+    if (typeof value !== "number") {
+      setCharCount(value?.length);
+    }
   }, [value]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     onChange(e.target.value);
+  };
+
+  const handleNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    onChange(Number(e.target.value));
   };
 
   const renderInput = () => {
@@ -87,7 +96,7 @@ const TextField: React.FC<TextFieldProps> = ({
       );
     }
 
-    if (type === "tel") {
+    if (type === "tel" || type === "number") {
       return (
         <div className="flex gap-2 w-full max-w-md">
           {/* {onCountryCodeChange && (
@@ -107,11 +116,11 @@ const TextField: React.FC<TextFieldProps> = ({
             </Select>
           )} */}
           <Input
-            type="tel"
+            type={type}
             id={name}
             name={name}
             value={value}
-            onChange={handleChange}
+            onChange={handleNumberChange}
             onBlur={onBlur}
             disabled={disabled}
             maxLength={maxLength}
