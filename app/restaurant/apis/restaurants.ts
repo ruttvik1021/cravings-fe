@@ -43,7 +43,7 @@ export const setupRestaurantApi = (data: RestaurantSetupFormData) => {
   // Append files
   formData.append("logo", data.logo[0]);
   Array.from(data.images).forEach((file) => {
-    formData.append("images", file);
+    formData.append("images", file as File);
   });
   return AjaxUtils.postAjax(url, formData, true);
 };
@@ -65,7 +65,7 @@ export const updateRestaurantApi = (
   // Append files
   formData.append("logo", data.logo[0]);
   Array.from(data.images).forEach((file) => {
-    formData.append("images", file);
+    formData.append("images", file as File);
   });
   return AjaxUtils.putAjax(url, formData, true);
 };

@@ -45,20 +45,28 @@ const restaurantSetupSchema = z.object({
   city: z.string().min(1, "City is required"),
   pincode: z.string().min(1, "Pincode is required"),
   branchNumber: z.string().optional(),
-  logo: z
-    .instanceof(FileList, { message: "Please upload at least one image" })
-    .refine((files) => files.length > 0, "Logo is required")
-    .refine(
-      (files) => files[0].size <= maxFileSize,
-      `Max file size is ${allowedMbPerImage}MB`
-    ),
-  images: z
-    .instanceof(FileList, { message: "Please upload at least one image" })
-    .refine((files) => files.length <= 5, "Maximum 5 images allowed")
-    .refine(
-      (files) => Array.from(files).every((file) => file.size <= maxFileSize),
-      `Max file size is ${allowedMbPerImage}MB`
-    ),
+  logo:
+    typeof window !== "undefined"
+      ? z
+          .instanceof(FileList, { message: "Please upload at least one image" })
+          .refine((files) => files.length > 0, "Logo is required")
+          .refine(
+            (files) => files[0].size <= maxFileSize,
+            `Max file size is ${allowedMbPerImage}MB`
+          )
+      : z.any(), // Prevents SSR errors
+
+  images:
+    typeof window !== "undefined"
+      ? z
+          .instanceof(FileList, { message: "Please upload at least one image" })
+          .refine((files) => files.length <= 5, "Maximum 5 images allowed")
+          .refine(
+            (files) =>
+              Array.from(files).every((file) => file.size <= maxFileSize),
+            `Max file size is ${allowedMbPerImage}MB`
+          )
+      : z.any(), // Prevents SSR errors
   openingTime: z.string().min(1, "Opening time is required"),
   closingTime: z.string().min(1, "Closing time is required"),
 });
@@ -310,7 +318,7 @@ export default function RestaurantSetupPage() {
               render={({ field }) => (
                 <FileUpload
                   label="Restaurant Logo"
-                  error={errors.logo?.message}
+                  error={errors.logo?.message as string}
                   onChange={(e) => field.onChange(e)}
                   required
                   accept="image/*"
@@ -327,7 +335,7 @@ export default function RestaurantSetupPage() {
               render={({ field }) => (
                 <FileUpload
                   label="Restaurant Images"
-                  error={errors.images?.message}
+                  error={errors.images?.message as string}
                   onChange={(e) => field.onChange(e)}
                   accept="image/*"
                   required
