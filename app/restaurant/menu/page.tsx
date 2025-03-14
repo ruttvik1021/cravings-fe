@@ -58,7 +58,8 @@ const menuItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.number().min(1, "Price must be at least ₹1"),
   category: z.string().min(1, "Category is required"),
-  image: z.instanceof(FileList).optional(),
+  image:
+    typeof window !== "undefined" ? z.instanceof(FileList).optional() : z.any(), // Prevents SSR errors,
   isAvailable: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
 });
