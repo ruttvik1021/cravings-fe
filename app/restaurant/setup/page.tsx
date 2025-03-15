@@ -2,7 +2,7 @@
 
 import ErrorMessage from "@/components/errorMessage";
 import FileUpload from "@/components/fileupload";
-import TextField from "@/components/textfield";
+import { TextField } from "@/components/textfield";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,7 +43,11 @@ const restaurantSetupSchema = z.object({
   description: z.string().min(1, "Description is required"),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
-  pincode: z.string().min(1, "Pincode is required"),
+  pincode: z
+    .string()
+    .min(6, "Pincode must be 6 digits")
+    .max(6, "Pincode must be 6 digits")
+    .regex(/^[0-9]{6}$/, "Invalid pincode"),
   branchNumber: z.string().optional(),
   logo:
     typeof window !== "undefined"
@@ -55,7 +59,6 @@ const restaurantSetupSchema = z.object({
             `Max file size is ${allowedMbPerImage}MB`
           )
       : z.any(), // Prevents SSR errors
-
   images:
     typeof window !== "undefined"
       ? z

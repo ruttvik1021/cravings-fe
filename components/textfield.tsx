@@ -1,8 +1,9 @@
 import { Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
+import { Control, Controller } from "react-hook-form";
 
 type InputType =
   | "text"
@@ -20,7 +21,9 @@ interface TextFieldProps {
   label?: string;
   name: string;
   value: string | number;
-  onChange: (value: string | number) => void;
+  onChange: (
+    value: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   onBlur?: () => void;
   required?: boolean;
   placeholder?: string;
@@ -32,7 +35,15 @@ interface TextFieldProps {
   onCountryCodeChange?: (code: string) => void;
 }
 
-const TextField: React.FC<TextFieldProps> = ({
+interface FormFieldProps {
+  control: Control<any>;
+  name: string;
+  label: string;
+  type?: InputType;
+  required?: boolean;
+}
+
+export const TextField: React.FC<TextFieldProps> = ({
   type,
   label,
   name,
@@ -45,28 +56,18 @@ const TextField: React.FC<TextFieldProps> = ({
   maxLength,
   error,
   className,
-  // countryCode,
-  // onCountryCodeChange,
 }) => {
   const [charCount, setCharCount] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (typeof value !== "number") {
-      setCharCount(value?.length);
-    }
+    typeof value === "string" && setCharCount(value.length);
   }, [value]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    onChange(e.target.value);
-  };
-
-  const handleNumberChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    onChange(Number(e.target.value));
+    onChange(e);
   };
 
   const renderInput = () => {
@@ -81,7 +82,7 @@ const TextField: React.FC<TextFieldProps> = ({
             onBlur={onBlur}
             disabled={disabled}
             maxLength={maxLength}
-            placeholder={placeholder}
+            placeholder={placeholder || label}
             className={`w-full p-2 border rounded-md resize-none ${className} ${
               error ? "border-red-500" : "border-gray-300"
             }`}
@@ -96,48 +97,11 @@ const TextField: React.FC<TextFieldProps> = ({
       );
     }
 
-    if (type === "tel" || type === "number") {
-      return (
-        <div className="flex gap-2 w-full max-w-md">
-          {/* {onCountryCodeChange && (
-            <Select
-              value={countryCode}
-              onValueChange={onCountryCodeChange}
-              disabled={disabled}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Code" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="+1">+1 (US)</SelectItem>
-                <SelectItem value="+91">+91 (IN)</SelectItem>
-                <SelectItem value="+44">+44 (UK)</SelectItem>
-              </SelectContent>
-            </Select>
-          )} */}
-          <Input
-            type={type}
-            id={name}
-            name={name}
-            value={value}
-            onChange={handleNumberChange}
-            onBlur={onBlur}
-            disabled={disabled}
-            maxLength={maxLength}
-            placeholder={placeholder}
-            className={`flex-1 min-w-0 p-2 border rounded-md ${className} ${
-              error ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-        </div>
-      );
-    }
-
     if (type === "password") {
       return (
         <div className="relative">
           <Input
-            type={type === "password" && showPassword ? "text" : type}
+            type={showPassword ? "text" : "password"}
             id={name}
             name={name}
             value={value}
@@ -145,20 +109,18 @@ const TextField: React.FC<TextFieldProps> = ({
             onBlur={onBlur}
             disabled={disabled}
             maxLength={maxLength}
-            placeholder={placeholder}
+            placeholder={placeholder || label}
             className={`w-full p-2 border rounded-md pr-10 ${className} ${
               error ? "border-red-500" : "border-gray-300"
             }`}
           />
-          {type === "password" && (
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-            >
-              {!showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
       );
     }
@@ -173,7 +135,7 @@ const TextField: React.FC<TextFieldProps> = ({
         onBlur={onBlur}
         disabled={disabled}
         maxLength={maxLength}
-        placeholder={placeholder}
+        placeholder={placeholder || label}
         className={`w-full p-2 border rounded-md ${className} ${
           error ? "border-red-500" : "border-gray-300"
         }`}
@@ -197,4 +159,22 @@ const TextField: React.FC<TextFieldProps> = ({
   );
 };
 
-export default TextField;
+export const FormField = memo(
+  ({ control, name, label, type = "text", required }: FormFieldProps) => (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState }) => (
+        <TextField
+          type={type}
+          label={label}
+          name={name}
+          value={field.value}
+          onChange={field.onChange}
+          error={fieldState.error?.message}
+          required={required}
+        />
+      )}
+    />
+  )
+);

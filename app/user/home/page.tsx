@@ -1,3 +1,4 @@
+"use client";
 import { MapPin, Search, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,67 +6,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { getRestaurantsList } from "@/app/user/apis/restaurant";
+import { toTitleCase } from "@/app/utils";
 
 export default function HomePage() {
-  // Mock data for restaurants
-  const restaurants = [
-    {
-      id: 1,
-      name: "Burger Palace",
-      image: "/placeholder.svg?height=200&width=300",
-      cuisine: "Fast Food",
-      rating: 4.5,
-      deliveryTime: "25-30 min",
-      distance: "1.2 km",
-    },
-    {
-      id: 2,
-      name: "Pizza Heaven",
-      image: "/placeholder.svg?height=200&width=300",
-      cuisine: "Italian",
-      rating: 4.7,
-      deliveryTime: "30-40 min",
-      distance: "1.5 km",
-    },
-    {
-      id: 3,
-      name: "Sushi World",
-      image: "/placeholder.svg?height=200&width=300",
-      cuisine: "Japanese",
-      rating: 4.8,
-      deliveryTime: "35-45 min",
-      distance: "2.0 km",
-    },
-    {
-      id: 4,
-      name: "Taco Fiesta",
-      image: "/placeholder.svg?height=200&width=300",
-      cuisine: "Mexican",
-      rating: 4.3,
-      deliveryTime: "20-30 min",
-      distance: "0.8 km",
-    },
-    {
-      id: 5,
-      name: "Curry House",
-      image: "/placeholder.svg?height=200&width=300",
-      cuisine: "Indian",
-      rating: 4.6,
-      deliveryTime: "30-40 min",
-      distance: "1.7 km",
-    },
-    {
-      id: 6,
-      name: "Noodle Bar",
-      image: "/placeholder.svg?height=200&width=300",
-      cuisine: "Chinese",
-      rating: 4.4,
-      deliveryTime: "25-35 min",
-      distance: "1.3 km",
-    },
-  ];
-
+  const { data: restaurants } = useQuery({
+    queryKey: ["restaurants"],
+    queryFn: getRestaurantsList,
+  });
   return (
     <div>
       {/* Location and Search */}
@@ -93,16 +42,16 @@ export default function HomePage() {
         <h2 className="text-xl font-semibold mb-4">Explore Restaurants</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {restaurants.map((restaurant) => (
+          {restaurants?.data?.map((restaurant: Restaurant) => (
             <Link
-              href={`/user/restaurant/${restaurant.id}`}
-              key={restaurant.id}
+              href={`/user/restaurant/${restaurant._id}`}
+              key={restaurant._id}
             >
               <Card className="overflow-hidden hover:shadow-md transition-shadow">
                 <div className="relative h-48 w-full">
                   <Image
-                    src={restaurant.image || "/placeholder.svg"}
-                    alt={restaurant.name}
+                    src={restaurant.images[0] || "/placeholder.svg"}
+                    alt={restaurant.restaurantName}
                     fill
                     className="object-cover"
                   />
@@ -111,22 +60,22 @@ export default function HomePage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-semibold text-lg">
-                        {restaurant.name}
+                        {restaurant.restaurantName}
                       </h3>
                       <p className="text-muted-foreground text-sm">
-                        {restaurant.cuisine}
+                        {toTitleCase(restaurant.foodCategory)} -{" "}
+                        {toTitleCase(restaurant.restaurantType)}
                       </p>
                     </div>
                     <div className="flex items-center bg-primary/10 px-2 py-1 rounded">
-                      <Star className="h-4 w-4 text-primary fill-primary mr-1" />
                       <span className="text-sm font-medium">
-                        {restaurant.rating}
+                        {restaurant.city}
                       </span>
                     </div>
                   </div>
                   <div className="flex justify-between mt-4 text-sm text-muted-foreground">
-                    <span>{restaurant.deliveryTime}</span>
-                    <span>{restaurant.distance}</span>
+                    <span>{restaurant.openingTime}</span>
+                    <span>{restaurant.closingTime}</span>
                   </div>
                 </CardContent>
               </Card>

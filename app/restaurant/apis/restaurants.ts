@@ -71,7 +71,7 @@ export const updateRestaurantApi = (
 };
 
 export const getCategories = () => {
-  const url = "/menu/categories";
+  const url = "/menu/categories/all";
   return AjaxUtils.getAjax(url, true);
 };
 

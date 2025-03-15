@@ -1,7 +1,7 @@
 "use client";
 
 import ErrorMessage from "@/components/errorMessage";
-import TextField from "@/components/textfield";
+import { TextField } from "@/components/textfield";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,14 +34,16 @@ const registerSchema = z
     email: z.string().email("Invalid email address"),
     phone: z
       .string()
-      .min(10, "Invalid phone number")
-      .max(10, "Invalid phone number"),
+      .min(10, "Phone number must be 10 digits")
+      .max(10, "Phone number must be 10 digits")
+      .regex(/^[0-9]{10}$/, "Invalid phone number"),
     countryCode: z.string().default("+1"),
     address: z.string().min(5, "Address must be at least 5 characters"),
     pincode: z
       .string()
-      .regex(/^\d+$/, "Invalid pincode")
-      .min(6, "Pincode must be at least 6 digits"),
+      .min(6, "Pincode must be 6 digits")
+      .max(6, "Pincode must be 6 digits")
+      .regex(/^[0-9]{6}$/, "Invalid pincode"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })

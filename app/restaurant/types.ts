@@ -42,4 +42,16 @@ interface Category {
   _id: string;
   name: string;
   description: string;
+  menuItemCount?: number;
+}
+
+interface CategoriesWithMenuItems {
+  categoryName: string;
+  categoryDescription: string;
+  _id: string;
+  menuItems: MenuItem[];
+}
+
+interface RestaurantDetails extends Restaurant {
+  categories: CategoriesWithMenuItems[];
 }

@@ -1,129 +1,35 @@
 "use client";
-import { Clock, Info, MapPin, Star } from "lucide-react";
+import { Clock, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { getRestaurantsDetails } from "../../apis/restaurant";
-import { useParams } from "next/navigation";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { toTitleCase } from "../../../utils";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { toTitleCase } from "../../../utils";
+import { getRestaurantsDetails } from "../../apis/restaurant";
 
 export default function RestaurantPage() {
   const params = useParams();
   const restaurantId = params.id as string;
 
-  const { data: restaurant, isLoading } = useQuery<Restaurant>({
+  const { data: restaurant, isLoading } = useQuery<RestaurantDetails>({
     queryKey: [`restaurant-${params.id}`],
     queryFn: async () => {
       const restaurant = await getRestaurantsDetails(restaurantId);
       return restaurant.data;
     },
   });
-  // Mock restaurant data
-  // const restaurant = {
-  //   id: params.id,
-  //   name: "Burger Palace",
-  //   image: "/placeholder.svg?height=300&width=800",
-  //   cuisine: "Fast Food",
-  //   rating: 4.5,
-  //   deliveryTime: "25-30 min",
-  //   distance: "1.2 km",
-  //   address: "123 Burger St, Foodville, 12345",
-  //   description:
-  //     "Serving the juiciest burgers in town since 2010. Our ingredients are locally sourced and our recipes are crafted to perfection.",
-  //   openingHours: "10:00 AM - 10:00 PM",
-  // };
-
-  // Mock menu categories and items
-  const menuCategories = [
-    {
-      id: "burgers",
-      name: "Burgers",
-      items: [
-        {
-          id: 1,
-          name: "Classic Cheeseburger",
-          description:
-            "Beef patty with cheddar cheese, lettuce, tomato, and special sauce",
-          price: 8.99,
-          image: "/placeholder.svg?height=100&width=100",
-          popular: true,
-        },
-        {
-          id: 2,
-          name: "Double Bacon Burger",
-          description: "Two beef patties with bacon, cheese, and BBQ sauce",
-          price: 12.99,
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          id: 3,
-          name: "Veggie Burger",
-          description:
-            "Plant-based patty with avocado, lettuce, and vegan mayo",
-          price: 9.99,
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    },
-    {
-      id: "sides",
-      name: "Sides",
-      items: [
-        {
-          id: 4,
-          name: "French Fries",
-          description: "Crispy golden fries with sea salt",
-          price: 3.99,
-          image: "/placeholder.svg?height=100&width=100",
-          popular: true,
-        },
-        {
-          id: 5,
-          name: "Onion Rings",
-          description: "Crispy battered onion rings",
-          price: 4.99,
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    },
-    {
-      id: "drinks",
-      name: "Drinks",
-      items: [
-        {
-          id: 6,
-          name: "Milkshake",
-          description: "Creamy vanilla, chocolate, or strawberry",
-          price: 5.99,
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          id: 7,
-          name: "Soft Drink",
-          description: "Cola, lemon-lime, or orange soda",
-          price: 2.99,
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    },
-  ];
 
   if (isLoading) {
     return <>Loading...</>;
@@ -214,22 +120,27 @@ export default function RestaurantPage() {
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Menu</h2>
 
-          <Accordion
-            type="multiple"
-            className="w-full"
-            defaultValue={[menuCategories[0].id]}
-          >
-            {menuCategories.map((category, index) => (
-              <AccordionItem value={category.id} key={index}>
-                <AccordionTrigger>{category.name}</AccordionTrigger>
+          <Accordion type="multiple" className="w-full">
+            {restaurant.categories.map((category, index) => (
+              <AccordionItem
+                value={category._id}
+                key={index}
+                className=" border-none"
+              >
+                <AccordionTrigger className="bg-primary/10 p-2 rounded-lg mb-2">
+                  <div className="flex flex-col text-left gap-2">
+                    <Label>{category.categoryName}</Label>
+                  </div>
+                </AccordionTrigger>
                 <AccordionContent className="p-4 border-b-primary">
-                  {category.items.map((item, index) => (
+                  {category.menuItems.map((item, index) => (
                     <div
-                      key={item.id}
+                      key={item._id}
                       className={cn(
                         "flex flex-col sm:flex-row gap-4 border-b p-4 items-center sm:items-start",
                         {
-                          ["border-none"]: index === category.items.length - 1,
+                          ["border-none"]:
+                            index === category.menuItems.length - 1,
                         }
                       )}
                     >
