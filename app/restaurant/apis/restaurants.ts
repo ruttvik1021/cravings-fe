@@ -3,23 +3,23 @@ import { RestaurantSetupFormData } from "../setup/page";
 import { AddMenuItemForm, CreateCategoryForm } from "../menu/page";
 
 export const restaurantSignUpApi = (
-  values: RestaurantAndDeliveryAgentRegistration
+  data: RestaurantAndDeliveryAgentRegistration
 ) => {
   const url = "/auth/register/restaurant";
 
   const formData = new FormData();
 
-  // Append all non-file fields dynamically
-  for (const [key, value] of Object.entries(values)) {
-    if (value) {
-      // Check if the field is a file
-      if ("profilePhoto" in values || key === "idCard") {
-        formData.append(key, value[0] as File);
-      } else {
-        formData.append(key, String(value)); // Convert non-file values to string
-      }
-    }
-  }
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === "profilePhoto" || key === "idCard") return;
+    if (typeof value === "string") formData.append(key, value);
+  });
+
+  Array.from(data.profilePhoto).forEach((file) => {
+    formData.append("profilePhoto", file as File);
+  });
+  Array.from(data.idCard).forEach((file) => {
+    formData.append("idCard", file as File);
+  });
 
   return AjaxUtils.postAjax(url, formData, false);
 };
@@ -34,14 +34,14 @@ export const setupRestaurantApi = (data: RestaurantSetupFormData) => {
 
   const formData = new FormData();
 
-  // Append basic fields
   Object.entries(data).forEach(([key, value]) => {
     if (key === "logo" || key === "images") return;
     if (typeof value === "string") formData.append(key, value);
   });
 
-  // Append files
-  formData.append("logo", data.logo[0]);
+  Array.from(data.logo).forEach((file) => {
+    formData.append("logo", file as File);
+  });
   Array.from(data.images).forEach((file) => {
     formData.append("images", file as File);
   });
@@ -62,8 +62,9 @@ export const updateRestaurantApi = (
     if (typeof value === "string") formData.append(key, value);
   });
 
-  // Append files
-  formData.append("logo", data.logo[0]);
+  Array.from(data.logo).forEach((file) => {
+    formData.append("logo", file as File);
+  });
   Array.from(data.images).forEach((file) => {
     formData.append("images", file as File);
   });
