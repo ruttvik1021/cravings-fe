@@ -121,61 +121,60 @@ export default function RestaurantPage() {
           <h2 className="text-xl font-semibold mb-4">Menu</h2>
 
           <Accordion type="multiple" className="w-full">
-            {restaurant.categories.map(
-              (category, index) =>
-                category.menuItems.length && (
-                  <AccordionItem
-                    value={category._id}
-                    key={index}
-                    className=" border-none"
-                  >
-                    <AccordionTrigger className="bg-primary/10 p-2 rounded-lg mb-2">
-                      <div className="flex flex-col text-left gap-2">
-                        <Label>{category.categoryName}</Label>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-4 border-b-primary">
-                      {category.menuItems.map((item, index) => (
-                        <div
-                          key={item._id}
-                          className={cn(
-                            "flex flex-col sm:flex-row gap-4 border-b p-4 items-center sm:items-start",
-                            {
-                              ["border-none"]:
-                                index === category.menuItems.length - 1,
-                            }
-                          )}
-                        >
-                          {/* Image at the top on mobile */}
-                          <div className="relative h-24 w-24 sm:h-20 sm:w-20 rounded-md overflow-hidden">
-                            <Image
-                              src={item.image || "/placeholder.svg"}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
+            {restaurant.categories.map((category, index) =>
+              category.menuItems.length ? (
+                <AccordionItem
+                  value={category._id}
+                  key={index}
+                  className=" border-none"
+                >
+                  <AccordionTrigger className="bg-primary/10 p-2 rounded-lg mb-2">
+                    <div className="flex flex-col text-left gap-2">
+                      <Label>{category.categoryName}</Label>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-4 border-b-primary">
+                    {category.menuItems.map((item, index) => (
+                      <div
+                        key={item._id}
+                        className={cn(
+                          "flex flex-col sm:flex-row gap-4 border-b p-4 items-center sm:items-start",
+                          {
+                            ["border-none"]:
+                              index === category.menuItems.length - 1,
+                          }
+                        )}
+                      >
+                        {/* Image at the top on mobile */}
+                        <div className="relative h-24 w-24 sm:h-20 sm:w-20 rounded-md overflow-hidden">
+                          <Image
+                            src={item.image || "/placeholder.svg"}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
 
-                          {/* Text Section Below Image on Mobile */}
-                          <div className="flex-1 text-center sm:text-left">
-                            <h3 className="font-medium text-base sm:text-lg">
-                              {item.name}
-                            </h3>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                              {item.description}
-                            </p>
-                            <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-                              <span className="font-medium text-lg">
-                                ${item.price.toFixed(2)}
-                              </span>
-                              <Button size="sm">Add</Button>
-                            </div>
+                        {/* Text Section Below Image on Mobile */}
+                        <div className="flex-1 text-center sm:text-left">
+                          <h3 className="font-medium text-base sm:text-lg">
+                            {item.name}
+                          </h3>
+                          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                            {item.description}
+                          </p>
+                          <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+                            <span className="font-medium text-lg">
+                              ${item.price.toFixed(2)}
+                            </span>
+                            <Button size="sm">Add</Button>
                           </div>
                         </div>
-                      ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                )
+                      </div>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              ) : null
             )}
           </Accordion>
         </div>
