@@ -13,9 +13,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <DashboardLayout userType="admin" userName="Admin User">
-      {children}
-    </DashboardLayout>
-  );
+  return <DashboardLayout userType="admin">{children}</DashboardLayout>;
 }

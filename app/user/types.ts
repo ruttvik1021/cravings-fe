@@ -8,8 +8,8 @@ interface UserRegistration {
 }
 
 interface RestaurantAndDeliveryAgentRegistration extends UserRegistration {
-  profilePhoto: File;
-  idCard: File;
+  profilePhoto: FileList;
+  idCard: FileList;
 }
 
 interface UserLogin {

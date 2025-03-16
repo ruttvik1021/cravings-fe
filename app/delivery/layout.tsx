@@ -14,8 +14,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <DashboardLayout userType="delivery_agent" userName="Delivery Agent">
-      {children}
-    </DashboardLayout>
+    <DashboardLayout userType="delivery_agent">{children}</DashboardLayout>
   );
 }

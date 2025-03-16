@@ -41,9 +41,9 @@ export default function RestaurantPage() {
 
   return (
     <>
-      <div className="relative h-64 md:h-80 mb-2">
+      <div className="relative h-60 md:h-96 mb-2">
         <Image
-          src={restaurant.logo}
+          src={restaurant.images[0]}
           alt={`Restaurant Image`}
           fill
           className="object-cover"

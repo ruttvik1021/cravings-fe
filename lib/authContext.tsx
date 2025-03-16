@@ -3,8 +3,7 @@
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
-
-export type UserRole = "user" | "restaurant_owner" | "delivery_agent" | "admin";
+import { UserRole } from "./utils";
 
 export interface AuthUser {
   _id: string;

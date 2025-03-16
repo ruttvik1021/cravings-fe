@@ -1,8 +1,13 @@
+import { UserRole } from "@/lib/utils";
 import { AjaxUtils } from "../../../ajax/ajax";
 
-export const userLoginApi = (values: UserLogin) => {
+export const userLoginApi = (values: UserLogin, role: UserRole) => {
   const url = "/auth/login";
-  return AjaxUtils.postAjax(url, values, false);
+  const payload = {
+    ...values,
+    role,
+  };
+  return AjaxUtils.postAjax(url, payload, false);
 };
 
 export const userSignUpApi = (values: UserRegistration) => {

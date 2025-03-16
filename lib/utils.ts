@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { UserRole } from "./authContext";
+
+export type UserRole = "user" | "restaurant_owner" | "delivery_agent" | "admin";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

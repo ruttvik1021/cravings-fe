@@ -48,8 +48,10 @@ const registerSchema = z
       .regex(/^[0-9]{6}$/, "Invalid pincode"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
-    profilePhoto: z.instanceof(File, { message: "Profile photo is required" }),
-    idCard: z.instanceof(File, { message: "ID Card is required" }),
+    profilePhoto: z.instanceof(FileList, {
+      message: "Profile photo is required",
+    }),
+    idCard: z.instanceof(FileList, { message: "ID Card is required" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -68,7 +70,7 @@ export default function LoginPage() {
 
   const { mutate: deliveryAgentLogin, isPending: isLoginPending } = useMutation(
     {
-      mutationFn: (data: LoginFormData) => userLoginApi(data),
+      mutationFn: (data: LoginFormData) => userLoginApi(data, "delivery_agent"),
       onSuccess: (response) => {
         login(response.data.accessToken, response.data.user);
         loginControl._reset();

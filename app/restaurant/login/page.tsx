@@ -18,7 +18,6 @@ import { useAuth } from "@/lib/authContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -48,8 +47,10 @@ const registerSchema = z
       .regex(/^[0-9]{6}$/, "Invalid pincode"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
-    profilePhoto: z.instanceof(File, { message: "Profile photo is required" }),
-    idCard: z.instanceof(File, { message: "ID Card is required" }),
+    profilePhoto: z.instanceof(FileList, {
+      message: "Profile photo is required",
+    }),
+    idCard: z.instanceof(FileList, { message: "ID Card is required" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -60,13 +61,12 @@ type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const { login } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [error, setError] = useState<{ [activeTab]: string }>({});
   const [countryCode, setCountryCode] = useState("+91");
   const { mutate: userLogin, isPending: isLoginPending } = useMutation({
-    mutationFn: (data: LoginFormData) => userLoginApi(data),
+    mutationFn: (data: LoginFormData) => userLoginApi(data, "restaurant_owner"),
     onSuccess: (response) => {
       login(response.data.accessToken, response.data.user);
       loginControl._reset();
@@ -115,6 +115,8 @@ export default function LoginPage() {
   const handleRegister = async (data: RegisterFormData) => {
     restaurantRegistration(data);
   };
+
+  console.log("registerControl", registerControl);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">

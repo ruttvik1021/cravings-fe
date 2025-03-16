@@ -31,6 +31,7 @@ import {
   updateRestaurantApi,
 } from "../apis/restaurants";
 import { urlToFile } from "@/app/utils";
+import { toast } from "sonner";
 
 const allowedMbPerImage = 2;
 const maxFileSize = allowedMbPerImage * 1024 * 1024; // Convert MB to bytes
@@ -139,10 +140,12 @@ export default function RestaurantSetupPage() {
   const { mutate: updateRestuarant, isPending: isUpdating } = useMutation({
     mutationFn: async (data: RestaurantSetupFormData) =>
       updateRestaurantApi(data, setupData._id),
-    onSuccess: () =>
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["restuarant-setup"],
       }),
+        toast.success("Restaurant Details updated.");
+    },
     onError: (error) => setError(error.message),
   });
 
@@ -152,7 +155,9 @@ export default function RestaurantSetupPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Restaurant Setup</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            Restaurant Details
+          </CardTitle>
           <CardDescription>
             Complete your restaurant profile to start receiving orders
           </CardDescription>

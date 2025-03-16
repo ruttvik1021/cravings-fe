@@ -30,8 +30,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth, UserRole } from "@/lib/authContext";
-import { cn, roleBaseRoutes } from "@/lib/utils";
+import { useAuth } from "@/lib/authContext";
+import { cn, roleBaseRoutes, UserRole } from "@/lib/utils";
 import { Package, Store, Users } from "lucide-react";
 import ErrorMessage from "./errorMessage";
 
@@ -46,7 +46,6 @@ type userTypes = Exclude<UserRole, "user">;
 interface DashboardLayoutProps {
   children: React.ReactNode;
   userType: userTypes;
-  userName: string;
 }
 
 const navItems: Record<userTypes, NavItem[]> = {
@@ -123,16 +122,13 @@ const navItems: Record<userTypes, NavItem[]> = {
   ],
 };
 
-export function DashboardLayout({
-  children,
-  userType,
-  userName,
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children, userType }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, logout, user } = useAuth();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
+  const userName = user?.name || "";
   const isAccountApproved = user?.isApproved;
 
   const userTypeLabel: { [K in userTypes]: string } = {
@@ -219,7 +215,7 @@ export function DashboardLayout({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8 border-2 border-honeydew">
-                  <AvatarImage src="/placeholder-user.jpg" alt={userName} />
+                  <AvatarImage src={user?.profilePhoto || ""} alt={userName} />
                   <AvatarFallback className="bg-berkeley-blue text-primary">
                     {userName.charAt(0)}
                   </AvatarFallback>
@@ -228,10 +224,10 @@ export function DashboardLayout({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white">
               <DropdownMenuLabel className="text-primary">
-                {userName}
-              </DropdownMenuLabel>
-              <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                {userTypeLabel[userType]}
+                <p>{userName}</p>
+                <sub className="text-xs font-normal text-muted-foreground">
+                  {userTypeLabel[userType]}
+                </sub>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-honeydew/30" />
               <DropdownMenuItem
@@ -274,7 +270,7 @@ export function DashboardLayout({
               className="flex items-center gap-2 text-lg font-semibold text-primary"
             >
               <span className="font-bold">Cravings</span>
-            </Link>
+            </Link>{" "}
           </div>
           <nav className="grid gap-2 p-4 text-sm">
             {isAccountApproved ? (
@@ -300,14 +296,14 @@ export function DashboardLayout({
           <div className="mt-auto p-4">
             <div className="flex items-center gap-2 rounded-lg border border-honeydew/30 p-4 bg-white">
               <Avatar className="h-8 w-8 border-2 border-honeydew">
-                <AvatarImage src="/placeholder-user.jpg" alt={userName} />
+                <AvatarImage src={user?.profilePhoto || ""} alt={userName} />
                 <AvatarFallback className="bg-berkeley-blue text-primary">
                   {userName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-primary">
-                  {userName}
+                  {userName.split(" ")[0]}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {userTypeLabel[userType]}

@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const { mutate: userLogin, isPending: isLoginPending } = useMutation({
-    mutationFn: (data: LoginFormData) => userLoginApi(data),
+    mutationFn: (data: LoginFormData) => userLoginApi(data, "admin"),
     onSuccess: (response) => {
       login(response.data.accessToken, response.data.user);
       loginControl._reset();
