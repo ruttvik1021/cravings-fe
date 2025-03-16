@@ -27,7 +27,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/authContext";
 
 export function UserLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const navItems = [
@@ -124,16 +124,16 @@ export function UserLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8 border-2 border-honeydew">
-                    <AvatarImage src="/placeholder-user.jpg" alt="User" />
+                    <AvatarImage src={user?.profilePhoto} alt={user?.name} />
                     <AvatarFallback className="bg-berkeley-blue text-primary">
-                      U
+                      {user?.name}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white">
                 <DropdownMenuLabel className="text-primary">
-                  My Account
+                  {user?.name}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-honeydew/30" />
                 <DropdownMenuItem asChild>

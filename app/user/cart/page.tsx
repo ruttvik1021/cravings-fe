@@ -1,3 +1,4 @@
+"use client";
 import { ChevronLeft, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,8 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
+  const router = useRouter();
   // Mock cart items
   const cartItems = [
     {
@@ -46,13 +49,14 @@ export default function CartPage() {
   return (
     <div>
       <div className="flex items-center mb-6">
-        <Link
-          href="/user/restaurant/1"
+        <Button
+          variant="link"
+          onClick={() => router.back()}
           className="flex items-center text-sm text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Back to Restaurant
-        </Link>
+        </Button>
         <h1 className="text-2xl font-bold ml-auto">Your Cart</h1>
       </div>
 

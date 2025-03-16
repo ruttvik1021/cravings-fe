@@ -23,9 +23,6 @@ export default function HomePage() {
           <MapPin className="h-5 w-5 text-primary" />
           <span className="font-medium">Deliver to:</span>
           <span>123 Main St, Anytown, 12345</span>
-          <Button variant="ghost" size="sm">
-            Change
-          </Button>
         </div>
 
         <div className="relative">
