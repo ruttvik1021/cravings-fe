@@ -13,14 +13,8 @@ export const restaurantSignUpApi = (
   for (const [key, value] of Object.entries(values)) {
     if (value) {
       // Check if the field is a file
-      if (key === "profilePhoto") {
-        Array.from(values[key]).forEach((file) => {
-          formData.append(key, file as File);
-        });
-      } else if (key === "idCard") {
-        Array.from(values[key]).forEach((file) => {
-          formData.append(key, file as File);
-        });
+      if ("profilePhoto" in values || key === "idCard") {
+        formData.append(key, value[0] as File);
       } else {
         formData.append(key, String(value)); // Convert non-file values to string
       }

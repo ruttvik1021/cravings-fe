@@ -47,10 +47,9 @@ const registerSchema = z
       .regex(/^[0-9]{6}$/, "Invalid pincode"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
-    profilePhoto: z.instanceof(FileList, {
-      message: "Profile photo is required",
-    }),
-    idCard: z.instanceof(FileList, { message: "ID Card is required" }),
+    profilePhoto:
+      typeof window !== "undefined" ? z.instanceof(FileList) : z.any(),
+    idCard: typeof window !== "undefined" ? z.instanceof(FileList) : z.any(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
