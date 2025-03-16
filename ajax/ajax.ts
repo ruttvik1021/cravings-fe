@@ -32,11 +32,6 @@ axiosInstance.interceptors.response.use(
         console.log("Request canceled", error.message);
         return Promise.reject({ isCanceled: true, ...error });
       }
-
-      const { status } = error.response;
-      if (status === 401 || status === 403) {
-        window.location.href = "/"; // Redirect to login page
-      }
     }
     return Promise.reject(error.response.data);
   }
