@@ -159,6 +159,11 @@ export default function RestaurantPage() {
                         <div className="flex-1 text-center sm:text-left">
                           <h3 className="font-medium text-base sm:text-lg">
                             {item.name}
+                            {item.isFeatured && (
+                              <span className="inline-block mt-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                Featured
+                              </span>
+                            )}
                           </h3>
                           <p className="text-sm sm:text-base text-muted-foreground mt-1">
                             {item.description}
