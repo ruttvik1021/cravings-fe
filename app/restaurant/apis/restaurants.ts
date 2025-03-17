@@ -14,12 +14,15 @@ export const restaurantSignUpApi = (
     if (typeof value === "string") formData.append(key, value);
   });
 
-  Array.from(data.profilePhoto).forEach((file) => {
-    formData.append("profilePhoto", file as File);
-  });
-  Array.from(data.idCard).forEach((file) => {
-    formData.append("idCard", file as File);
-  });
+  data?.profilePhoto &&
+    Array.from(data?.profilePhoto).forEach((file) => {
+      formData.append("profilePhoto", file as File);
+    });
+
+  data?.idCard &&
+    Array.from(data?.idCard).forEach((file) => {
+      formData.append("idCard", file as File);
+    });
 
   return AjaxUtils.postAjax(url, formData, false);
 };

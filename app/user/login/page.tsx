@@ -59,7 +59,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ [activeTab]: string }>({});
   const [countryCode, setCountryCode] = useState("+91");
   const { mutate: userLogin, isPending: isLoginPending } = useMutation({
     mutationFn: (data: LoginFormData) => userLoginApi(data, "user"),
@@ -68,7 +68,9 @@ export default function LoginPage() {
       loginControl._reset();
     },
     onError(error) {
-      setError(error.message);
+      setError({
+        [activeTab]: error.message,
+      });
     },
   });
 
@@ -80,7 +82,9 @@ export default function LoginPage() {
         registerControl._reset();
       },
       onError(error) {
-        setError(error.message);
+        setError({
+          [activeTab]: error.message,
+        });
       },
     });
 
@@ -167,7 +171,9 @@ export default function LoginPage() {
                     )}
                   />
 
-                  {error && <ErrorMessage message={error} />}
+                  {error[activeTab] && (
+                    <ErrorMessage message={error[activeTab]} />
+                  )}
 
                   <Button
                     type="submit"
@@ -301,6 +307,10 @@ export default function LoginPage() {
                       />
                     )}
                   />
+
+                  {error[activeTab] && (
+                    <ErrorMessage message={error[activeTab]} />
+                  )}
 
                   <Button
                     type="submit"
