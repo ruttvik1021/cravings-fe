@@ -128,7 +128,7 @@ const ProfileSection = () => {
                 Profile Photo
               </Label>
               <div
-                className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-non-photo-blue dark:border-non-photo-blue-dark mt-2 cursor-pointer"
+                className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-non-photo-blue dark:border-non-photo-blue-dark mt-2 cursor-pointer flex items-center"
                 onClick={() => fileUpload?.current?.click()}
               >
                 <Image
