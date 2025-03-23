@@ -120,21 +120,23 @@ const ProfileSection = () => {
         {/* Profile Photo Update */}
         <div className="flex flex-col md:flex-row gap-6 mt-3">
           <div className="flex flex-col items-center space-y-4 max-w-40">
-            <div className="relative">
+            <div>
               <Label
                 htmlFor="profile-photo"
                 className="block text-sm font-medium"
               >
                 Profile Photo
               </Label>
-              <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-non-photo-blue dark:border-non-photo-blue-dark mt-2">
+              <div
+                className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-non-photo-blue dark:border-non-photo-blue-dark mt-2 cursor-pointer"
+                onClick={() => fileUpload?.current?.click()}
+              >
                 <Image
                   src={user?.profilePhoto || "/placeholder.svg"}
                   alt="Profile"
                   width={128}
                   height={128}
-                  className="object-cover cursor-pointer"
-                  onClick={() => fileUpload?.current?.click()}
+                  className="object-cover"
                 />
                 <input
                   ref={fileUpload}
@@ -205,7 +207,7 @@ const ProfileSection = () => {
                     variant="default"
                     type="submit"
                     loading={isUpdatingName}
-                    className="bg-cerulean hover:bg-cerulean/90 text-white dark:bg-cerulean-dark dark:hover:bg-cerulean-dark/90"
+                    className="bg-cerulean hover:bg-cerulean/90 text-white dark:bg-cerulean-dark dark:hover:bg-cerulean-dark/90 mt-3"
                   >
                     {isUpdatingName ? "Saving..." : "Save Name"}
                   </Button>
