@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/lib/authContext";
+import { getDefaultPathForRole, useAuth } from "@/lib/authContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { userLoginApi, userSignUpApi } from "../apis/auth";
+import FileUpload from "@/components/fileupload";
 
 // Zod validation schemas
 const loginSchema = z.object({
@@ -37,13 +38,17 @@ const registerSchema = z
       .min(10, "Phone number must be 10 digits")
       .max(10, "Phone number must be 10 digits")
       .regex(/^[0-9]{10}$/, "Invalid phone number"),
-    countryCode: z.string().default("+1"),
+    countryCode: z.string().default("+91"),
     address: z.string().min(5, "Address must be at least 5 characters"),
     pincode: z
       .string()
       .min(6, "Pincode must be 6 digits")
       .max(6, "Pincode must be 6 digits")
       .regex(/^[0-9]{6}$/, "Invalid pincode"),
+    profilePhoto:
+      typeof window !== "undefined"
+        ? z.instanceof(FileList).optional()
+        : z.any(),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
@@ -57,14 +62,14 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, setUserData } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [error, setError] = useState<{ [activeTab]: string }>({});
   const [countryCode, setCountryCode] = useState("+91");
   const { mutate: userLogin, isPending: isLoginPending } = useMutation({
     mutationFn: (data: LoginFormData) => userLoginApi(data, "user"),
-    onSuccess: (response) => {
-      login(response.data.accessToken, response.data.user);
+    onSuccess: async (response) => {
+      login(response.data.accessToken);
       loginControl._reset();
     },
     onError(error) {
@@ -77,7 +82,8 @@ export default function LoginPage() {
   const { mutate: userRegistration, isPending: isRegisterPending } =
     useMutation({
       mutationFn: (data: RegisterFormData) => userSignUpApi(data),
-      onSuccess: (response) => {
+      onSuccess: async (response) => {
+        login(response.data.accessToken);
         router.push("/user/home");
         registerControl._reset();
       },
@@ -191,6 +197,19 @@ export default function LoginPage() {
               <form onSubmit={handleRegisterSubmit(handleRegister)} noValidate>
                 <div className="grid gap-4">
                   <Controller
+                    name="profilePhoto"
+                    control={registerControl}
+                    render={({ field, fieldState }) => (
+                      <FileUpload
+                        label="Profile Photo"
+                        error={fieldState.error?.message}
+                        onChange={(e) => field.onChange(e)}
+                        accept="image/*"
+                      />
+                    )}
+                  />
+
+                  <Controller
                     name="name"
                     control={registerControl}
                     render={({ field, fieldState }) => (
@@ -217,11 +236,6 @@ export default function LoginPage() {
                         value={field.value}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
-                        countryCode={countryCode}
-                        onCountryCodeChange={(code) => {
-                          setCountryCode(code);
-                          setValue("countryCode", code);
-                        }}
                         required
                       />
                     )}

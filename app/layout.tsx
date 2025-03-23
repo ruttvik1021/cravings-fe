@@ -23,11 +23,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <RouteLoader />
-          <Toaster richColors />
-          <QueryWrapper>{children}</QueryWrapper>
-        </AuthProvider>
+        <QueryWrapper>
+          <AuthProvider>
+            <RouteLoader />
+            <Toaster richColors />
+            {children}
+          </AuthProvider>
+        </QueryWrapper>
       </body>
     </html>
   );

@@ -64,7 +64,7 @@ const restaurantSetupSchema = z.object({
     typeof window !== "undefined"
       ? z
           .instanceof(FileList, { message: "Please upload at least one image" })
-          .refine((files) => files.length <= 5, "Maximum 5 images allowed")
+          .refine((files) => files.length <= 1, "Maximum 1 image allowed")
           .refine(
             (files) =>
               Array.from(files).every((file) => file.size <= maxFileSize),
@@ -342,12 +342,11 @@ export default function RestaurantSetupPage() {
               control={control}
               render={({ field }) => (
                 <FileUpload
-                  label="Restaurant Images"
+                  label="Restaurant Banner Image"
                   error={errors.images?.message as string}
                   onChange={(e) => field.onChange(e)}
                   accept="image/*"
                   required
-                  multiple
                   name="images"
                   value={field.value ? Array.from(field.value) : []}
                 />

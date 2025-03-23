@@ -1,6 +1,7 @@
 import { UploadCloud, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Label } from "./ui/label";
+import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
   label?: string;
@@ -11,6 +12,7 @@ interface FileUploadProps {
   required?: boolean;
   name?: string;
   value?: File[];
+  className?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -22,6 +24,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   required = false,
   name = "",
   value = [],
+  className = "",
 }) => {
   const [files, setFiles] = useState<File[]>([]);
 
@@ -94,7 +97,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center text-gray-500">
+          <div
+            className={cn(
+              "flex flex-col items-center align-middle text-gray-500",
+              className
+            )}
+          >
             <UploadCloud size={24} />
             <span className="text-sm">Click to upload files</span>
           </div>

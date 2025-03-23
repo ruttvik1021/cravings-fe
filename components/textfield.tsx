@@ -31,8 +31,6 @@ interface TextFieldProps {
   maxLength?: number;
   error?: string;
   className?: string;
-  countryCode?: string;
-  onCountryCodeChange?: (code: string) => void;
 }
 
 interface FormFieldProps {

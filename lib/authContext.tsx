@@ -4,6 +4,8 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { UserRole } from "./utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUserDetails } from "@/app/commonAPIs";
 
 export interface AuthUser {
   _id: string;
@@ -18,16 +20,32 @@ export interface AuthUser {
 
 interface AuthContextProps {
   user: AuthUser | null;
-  login: (accessToken: string, user: AuthUser, redirectPath?: string) => void;
+  login: (accessToken: string) => void;
   logout: () => void;
+  setUserData: (user: AuthUser) => void;
   isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
+
+  const { data: userData } = useQuery({
+    queryKey: ["userDetails"],
+    queryFn: getUserDetails,
+  });
+
+  useEffect(() => {
+    if (userData) {
+      setUserData(userData.data);
+      router.replace(
+        getDefaultPathForRole("restaurant_owner", userData.data.isApproved)
+      );
+    }
+  }, [userData]);
 
   useEffect(() => {
     const storedUser = getCookie("user");
@@ -55,6 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
+    queryClient.invalidateQueries({
+      queryKey: ["userDetails"],
+    });
   };
 
   const updateApproval = (approvalStatus: boolean) => {
@@ -67,16 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = (
-    accessToken: string,
-    userData: AuthUser,
-    redirectPath?: string
-  ) => {
+  const login = (accessToken: string) => {
     setTokenCookie(accessToken);
-    setUserData(userData);
-    router.replace(
-      redirectPath || getDefaultPathForRole(userData.role, userData.isApproved)
-    );
     // window.location.href = redirectPath || getDefaultPathForRole(userData.role);
   };
 
@@ -89,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated: !!user }}
+      value={{ user, login, setUserData, logout, isAuthenticated: !!user }}
     >
       {children}
     </AuthContext.Provider>
@@ -104,12 +117,15 @@ export function useAuth() {
   return context;
 }
 
-function getDefaultPathForRole(role: UserRole, isApproved: boolean): string {
+export function getDefaultPathForRole(
+  role: UserRole,
+  isApproved: boolean
+): string {
   switch (role) {
     case "user":
       return "/user/home";
     case "restaurant_owner":
-      return isApproved ? "/restaurant/dashboard" : "/restaurant/setup";
+      return isApproved ? " " : "/restaurant/setup";
     case "delivery_agent":
       return isApproved ? "/delivery/orders" : "/delivery/profile";
     case "admin":

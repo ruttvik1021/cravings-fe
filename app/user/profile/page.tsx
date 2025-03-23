@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AddressModal } from "@/app/user/components/address-modal";
 import { PaymentMethodModal } from "@/app/user/components/payment-method-modal";
+import ProfileSection from "@/components/profile-section";
 
 export default function UserProfilePage() {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -139,131 +140,7 @@ export default function UserProfilePage() {
           </TabsList>
 
           <TabsContent value="profile" className="space-y-4">
-            <Card className="bg-white shadow-md">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center flex-wrap gap-2">
-                  <div>
-                    <CardTitle>Personal Information</CardTitle>
-                    <CardDescription>
-                      Manage your personal details
-                    </CardDescription>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditMode(!isEditMode)}
-                    className="border-cerulean text-cerulean hover:bg-cerulean/10"
-                  >
-                    {isEditMode ? (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save
-                      </>
-                    ) : (
-                      <>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="relative">
-                      <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-non-photo-blue">
-                        <Image
-                          src={userData.profileImage || "/placeholder.svg"}
-                          alt="Profile"
-                          width={128}
-                          height={128}
-                          className="object-cover"
-                        />
-                      </div>
-                      {isEditMode && (
-                        <Button
-                          size="icon"
-                          className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-cerulean hover:bg-cerulean/90"
-                        >
-                          <Camera className="h-4 w-4" />
-                          <span className="sr-only">
-                            Change profile picture
-                          </span>
-                        </Button>
-                      )}
-                    </div>
-                    <div className="text-center">
-                      <h3 className="font-medium text-lg">{userData.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {userData.email}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input
-                          id="name"
-                          value={userData.name}
-                          onChange={(e) =>
-                            setUserData({ ...userData, name: e.target.value })
-                          }
-                          disabled={!isEditMode}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={userData.email}
-                          onChange={(e) =>
-                            setUserData({ ...userData, email: e.target.value })
-                          }
-                          disabled={!isEditMode}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          value={userData.phone}
-                          onChange={(e) =>
-                            setUserData({ ...userData, phone: e.target.value })
-                          }
-                          disabled={!isEditMode}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea
-                        id="bio"
-                        value={userData.bio}
-                        onChange={(e) =>
-                          setUserData({ ...userData, bio: e.target.value })
-                        }
-                        disabled={!isEditMode}
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                    {isEditMode && (
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={handleSaveProfile}
-                          className="bg-cerulean hover:bg-cerulean/90 text-white"
-                        >
-                          Save Changes
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <ProfileSection />
           </TabsContent>
 
           <TabsContent value="addresses" className="space-y-4">

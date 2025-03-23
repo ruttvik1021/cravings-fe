@@ -63,11 +63,10 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [error, setError] = useState<{ [activeTab]: string }>({});
-  const [countryCode, setCountryCode] = useState("+91");
   const { mutate: userLogin, isPending: isLoginPending } = useMutation({
     mutationFn: (data: LoginFormData) => userLoginApi(data, "restaurant_owner"),
-    onSuccess: (response) => {
-      login(response.data.accessToken, response.data.user);
+    onSuccess: async (response) => {
+      login(response.data.accessToken);
       loginControl._reset();
     },
     onError(error) {
@@ -80,8 +79,8 @@ export default function LoginPage() {
   const { mutate: restaurantRegistration, isPending: isRegisterPending } =
     useMutation({
       mutationFn: (data: RegisterFormData) => restaurantSignUpApi(data),
-      onSuccess: (response) => {
-        login(response.data.accessToken, response.data.user);
+      onSuccess: async (response) => {
+        login(response.data.accessToken);
         registerControl._reset();
       },
       onError(error) {
@@ -96,16 +95,13 @@ export default function LoginPage() {
       resolver: zodResolver(loginSchema),
     });
 
-  const {
-    control: registerControl,
-    handleSubmit: handleRegisterSubmit,
-    setValue,
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      countryCode: "+91",
-    },
-  });
+  const { control: registerControl, handleSubmit: handleRegisterSubmit } =
+    useForm<RegisterFormData>({
+      resolver: zodResolver(registerSchema),
+      defaultValues: {
+        countryCode: "+91",
+      },
+    });
 
   const handleLogin = async (data: LoginFormData) => {
     userLogin(data);
@@ -114,8 +110,6 @@ export default function LoginPage() {
   const handleRegister = async (data: RegisterFormData) => {
     restaurantRegistration(data);
   };
-
-  console.log("registerControl", registerControl);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
@@ -216,11 +210,6 @@ export default function LoginPage() {
                         value={field.value}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
-                        countryCode={countryCode}
-                        onCountryCodeChange={(code) => {
-                          setCountryCode(code);
-                          setValue("countryCode", code);
-                        }}
                         required
                       />
                     )}
@@ -319,6 +308,7 @@ export default function LoginPage() {
                       />
                     )}
                   />
+
                   <Controller
                     name="idCard"
                     control={registerControl}
